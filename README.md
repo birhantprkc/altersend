@@ -1,6 +1,6 @@
 <div align="center">
   <br />
-  <img src="assets/altersend-logo.png" alt="AlterSend" width="340" />
+  <img src="assets/altersend-logo.png" alt="AlterSend" width="280" />
   <br />
   <br />
 
@@ -29,6 +29,7 @@ Files go directly between your devices — end-to-end encrypted, no accounts, no
 - [Features](#features)
 - [Download](#download)
   - [macOS Homebrew](#macos-homebrew)
+  - [Linux Flatpak](#linux-flatpak)
 - [How it works](#how-it-works)
   - [Under the hood](#under-the-hood)
 - [For developers](#for-developers)
@@ -71,7 +72,7 @@ Get the latest release from [altersend.com/download](https://altersend.com/downl
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Windows** | [Microsoft Store](https://apps.microsoft.com/detail/9NHLK9GLVDLW) (signed) · [EXE installer](https://github.com/denislupookov/altersend/releases/latest)                                    |
 | **macOS**   | [DMG — Apple Silicon](https://github.com/denislupookov/altersend/releases/latest) · [DMG — Intel](https://github.com/denislupookov/altersend/releases/latest) · [Homebrew](#macos-homebrew) |
-| **Linux**   | [AppImage](https://github.com/denislupookov/altersend/releases/latest)                                                                                                                      |
+| **Linux**   | [AppImage](https://github.com/denislupookov/altersend/releases/latest) · [Flatpak](#linux-flatpak)                                                                                          |
 | **Android** | [Google Play](https://play.google.com/store/apps/details?id=com.altersend.mobile) · [APK](https://github.com/denislupookov/altersend/releases/latest)                                       |
 | **iOS**     | [App Store](https://apps.apple.com/us/app/altersend-file-transfer/id6772496271)                                                                                                             |
 
@@ -83,6 +84,15 @@ You can also install AlterSend on macOS using [Homebrew](https://brew.sh):
 
 ```sh
 brew install --cask altersend
+```
+
+### Linux Flatpak
+
+You can build and install the included Flatpak manifest yourself (needs `flatpak-builder`):
+
+```sh
+git clone https://github.com/denislupookov/altersend.git && cd altersend
+flatpak-builder --user --install --install-deps-from=flathub --force-clean build-dir flatpak/com.altersend.AlterSend.yaml
 ```
 
 ## How it works
