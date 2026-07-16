@@ -23,6 +23,8 @@
     "feedbackHint": "Melden Sie ein Problem oder schlagen Sie eine Funktion vor",
     "discord": "Discord",
     "discordHint": "Treten Sie der Community bei",
+    "github": "GitHub",
+    "sponsor": "AlterSend unterstützen",
     "contact": "Kontaktieren Sie uns",
     "privacyPolicy": "Datenschutzrichtlinie",
     "privacyPolicyHint": "Wie AlterSend mit Ihren Daten umgeht",
@@ -32,11 +34,6 @@
     "noDevices": "Noch keine Geräte",
     "pairedCount": "{{count}} gekoppelt",
     "connection": "Relay"
-  },
-  "legal": {
-    "terms": "Nutzungsbedingungen",
-    "privacy": "Datenschutzerklärung",
-    "sentence": "<terms>Nutzungsbedingungen</terms> und <privacy>Datenschutzerklärung</privacy>."
   },
   "pairing": {
     "pairNewDevice": "Neues Gerät koppeln",

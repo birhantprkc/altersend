@@ -1,7 +1,6 @@
 {
   "app": {
     "name": "AlterSend",
-    "tagline": "Transfert direct de fichiers",
     "welcome": "Bienvenue dans AlterSend",
     "loadingTagline": "Les fichiers passent directement entre vos appareils.\nAucun serveur, aucune copie, aucun intermédiaire."
   },

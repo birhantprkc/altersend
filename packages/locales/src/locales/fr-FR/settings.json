@@ -23,6 +23,8 @@
     "feedbackHint": "Signaler un problème ou suggérer une fonctionnalité",
     "discord": "Discord",
     "discordHint": "Rejoignez la communauté",
+    "github": "GitHub",
+    "sponsor": "Soutenir AlterSend",
     "contact": "Contactez-nous",
     "privacyPolicy": "Politique de confidentialité",
     "privacyPolicyHint": "Comment AlterSend gère vos données",
@@ -32,11 +34,6 @@
     "noDevices": "Aucun appareil pour l’instant",
     "pairedCount": "{{count}} associé(s)",
     "connection": "Relais"
-  },
-  "legal": {
-    "terms": "Conditions d'utilisation",
-    "privacy": "Déclaration de confidentialité",
-    "sentence": "<terms>Conditions d’utilisation</terms> et <privacy>Déclaration de confidentialité</privacy>."
   },
   "pairing": {
     "pairNewDevice": "Associer un nouvel appareil",

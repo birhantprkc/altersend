@@ -68,7 +68,6 @@ describe('mobile font coverage', () => {
       /subtitle:\s*\{[^}]*fontSize:\s*tokens\.fontSizeSm,[^}]*lineHeight:\s*tokens\.lineHeightNormal/s
     )
     expect(aboutSource).toMatch(/brandName:\s*\{[^}]*fontSize:\s*20,[^}]*lineHeight:\s*26/s)
-    expect(aboutSource).toMatch(/brandTagline:\s*\{[^}]*fontSize:\s*14,[^}]*lineHeight:\s*20/s)
   })
 
   it('returns from the language screen before changing the active i18n language', () => {

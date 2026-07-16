@@ -23,6 +23,8 @@
     "feedbackHint": "Report a problem or suggest a feature",
     "discord": "Discord",
     "discordHint": "Join the community",
+    "github": "GitHub",
+    "sponsor": "Support AlterSend",
     "contact": "Contact us",
     "privacyPolicy": "Privacy policy",
     "privacyPolicyHint": "How AlterSend handles your data",
@@ -32,11 +34,6 @@
     "noDevices": "No devices yet",
     "pairedCount": "{{count}} paired",
     "connection": "Relay"
-  },
-  "legal": {
-    "terms": "Terms of Use",
-    "privacy": "Privacy Statement",
-    "sentence": "<terms>Terms of Use</terms> and <privacy>Privacy Statement</privacy>."
   },
   "pairing": {
     "pairNewDevice": "Pair new device",

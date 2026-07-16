@@ -23,6 +23,8 @@
     "feedbackHint": "問題を報告または機能を提案",
     "discord": "Discord",
     "discordHint": "コミュニティに参加",
+    "github": "GitHub",
+    "sponsor": "AlterSendを支援する",
     "contact": "お問い合わせ",
     "privacyPolicy": "プライバシーポリシー",
     "privacyPolicyHint": "AlterSend のデータの扱い",
@@ -32,11 +34,6 @@
     "noDevices": "デバイスはまだありません",
     "pairedCount": "{{count}} 台ペアリング済み",
     "connection": "リレー"
-  },
-  "legal": {
-    "terms": "利用規約",
-    "privacy": "プライバシー声明",
-    "sentence": "<terms>利用規約</terms> と <privacy>プライバシーステートメント</privacy>。"
   },
   "pairing": {
     "pairNewDevice": "新しいデバイスをペアリング",

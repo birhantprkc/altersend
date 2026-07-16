@@ -1,7 +1,6 @@
 {
   "app": {
     "name": "AlterSend",
-    "tagline": "端末間の直接ファイル転送",
     "welcome": "AlterSend へようこそ",
     "loadingTagline": "ファイルは端末間で直接転送されます。\nサーバーもコピーも仲介もありません。"
   },

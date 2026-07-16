@@ -23,7 +23,7 @@ export * from './receive/joinCode'
 export * from './receive/downloadModel'
 export * from './transfer'
 
-export * from './onboarding'
+export * from './constants'
 export * from './useSimulatedLoading'
 export * from './useCopiedFlag'
 export * from './pairing'

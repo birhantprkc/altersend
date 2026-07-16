@@ -31,6 +31,8 @@
     "feedbackHint": "Сообщить о проблеме или предложить улучшение",
     "discord": "Discord",
     "discordHint": "Присоединиться к сообществу",
+    "github": "GitHub",
+    "sponsor": "Поддержать AlterSend",
     "contact": "Связаться с нами",
     "privacyPolicy": "Политика конфиденциальности",
     "privacyPolicyHint": "Как AlterSend обрабатывает ваши данные",
@@ -40,11 +42,6 @@
     "noDevices": "Пока нет устройств",
     "pairedCount": "{{count}} в сопряжении",
     "connection": "Ретранслятор"
-  },
-  "legal": {
-    "terms": "Условия использования",
-    "privacy": "Политика конфиденциальности",
-    "sentence": "<terms>Условия использования</terms> и <privacy>Политика конфиденциальности</privacy>."
   },
   "pairing": {
     "pairNewDevice": "Сопрячь новое устройство",

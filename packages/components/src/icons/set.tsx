@@ -23,6 +23,7 @@ import {
   FileText,
   Folder,
   Globe,
+  Heart,
   Image,
   Info,
   Laptop,
@@ -80,6 +81,7 @@ export const FileDownIcon = adaptLucide(FileDown)
 export const FileTextIcon = adaptLucide(FileText)
 export const FolderIcon = adaptLucide(Folder)
 export const GlobeIcon = adaptLucide(Globe)
+export const HeartIcon = adaptLucide(Heart)
 export const ImageIcon = adaptLucide(Image)
 export const InfoIcon = adaptLucide(Info)
 export const LaptopIcon = adaptLucide(Laptop)
