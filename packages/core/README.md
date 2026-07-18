@@ -2,7 +2,7 @@
 
 The peer-to-peer protocol and transfer orchestration for AlterSend. Hosts a [Bare](https://bare.pears.com/) worklet that owns Hyperswarm peer discovery, file transfer, and the wire protocol — isolated from Electron and React Native renderers.
 
-Bytes move over `@altersend/drive`: the sender reads chunks from the original file and the receiver writes them straight to the destination.
+Bytes move over `@altersend/drive`: the sender reads chunks from the original file and the receiver writes them straight to the destination. Hyperdrive remains wired up as a fallback for peers on older builds that don't offer a drive channel — `worklet/transfer/receiver.ts` picks per file.
 
 ## Architecture
 
@@ -29,6 +29,7 @@ This package has two halves:
 │   - DeviceIdentityStore     │
 │   - RememberedPeerStore     │
 │   - PeerControlChannel      │
+│   - RelayConfig             │
 └─────────────────────────────┘
 ```
 
@@ -41,7 +42,6 @@ import { createTransferWorkerClient } from '@altersend/core';
 
 const client = createTransferWorkerClient(workerProcess, {
   onEvent: (event) => {
-    // Receives RendererTransferEvent — status, role, error, peer-control messages
   },
 });
 
@@ -61,6 +61,7 @@ await client.peersList();                    // list remembered devices
 await client.inviteDevice({ ... });          // invite a remembered device (no code)
 await client.respondToInvite({ ... });       // accept / decline an incoming invite
 await client.forgetPeer(devicePubkeyHex);    // remove a remembered device
+await client.setRelayConfig({ ... });        // enable / disable the relay fallback
 ```
 
 ### Wire protocol
@@ -84,7 +85,6 @@ Anything not re-exported from `@altersend/core` (the wire-format codecs, command
 Built output of `src/worklet/index.ts` is what the host spawns:
 
 ```js
-// from the host
 const worker = pear.run('packages/core/dist/worklet/index.js', [`--storage=${storageRoot}`])
 ```
 

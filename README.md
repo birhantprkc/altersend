@@ -11,13 +11,11 @@ Files go directly between your devices — end-to-end encrypted, no accounts, no
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Windows%20%7C%20Linux%20%7C%20iOS%20%7C%20Android-lightgrey)](#download)
 
-[Website](https://altersend.com) · [Download](https://altersend.com/download) · [Discord](https://discord.gg/R6tmrk85Vx)
+[Website](https://altersend.com) · [Download](https://altersend.com/download) · [Discord](https://discord.gg/R6tmrk85Vx) · [X](https://x.com/altersend_app)
 
   <br/>
 
-  <img src="assets/desktop-example.png" alt="AlterSend desktop" width="520" align="middle" />
-  &nbsp;
-  <img src="assets/mobile-example.png" alt="AlterSend mobile" width="240" align="middle" />
+  <img src="assets/altersend-1.6.gif" alt="Sending a file from desktop to mobile with AlterSend" width="600" />
 
 </div>
 
@@ -61,7 +59,7 @@ Why use WeTransfer, Dropbox, or Google Drive when you can send files directly �
 - **Pair your devices** — pair a device once, then send to it without scanning or typing a code each time
 - **Cross-platform** — macOS, Windows, Linux, iOS, Android
 - **Works everywhere** — local network or across continents, same code path
-- **Multi-language** — fully translated UI, available in 12 languages
+- **Multi-language** — fully translated UI, available in 13 languages
 - **Open source** — Apache-2.0, audit every line yourself
 
 ## Download
@@ -75,8 +73,6 @@ Get the latest release from [altersend.com/download](https://altersend.com/downl
 | **Linux**   | [AppImage](https://github.com/denislupookov/altersend/releases/latest) · [Flatpak](#linux-flatpak)                                                                                          |
 | **Android** | [Google Play](https://play.google.com/store/apps/details?id=com.altersend.mobile) · [APK](https://github.com/denislupookov/altersend/releases/latest)                                       |
 | **iOS**     | [App Store](https://apps.apple.com/us/app/altersend-file-transfer/id6772496271)                                                                                                             |
-
-> **Windows `.exe`** — not yet signed, so Windows will show "Windows protected your PC" on first run. Click **More info → Run anyway** to install. The Microsoft Store version is signed and avoids this warning.
 
 ### macOS Homebrew
 
@@ -103,14 +99,18 @@ flatpak-builder --user --install --install-deps-from=flathub --force-clean build
 4. Files transfer directly — peer to peer
 
 ```
-   ┌─────────┐          encrypted P2P          ┌─────────┐
-   │ Device  │ ◄──────────────────────────────► │ Device  │
-   │   A     │      direct & encrypted          │   B     │
-   └─────────┘                                  └─────────┘
-        ▲                                            ▲
-        │       peer discovery via Hyperswarm        │
-        └────────────────────────────────────────────┘
-                   (DHT, no central server)
+   ┌──────────┐                                  ┌──────────┐
+   │ Device A │ ◄─── direct, E2E encrypted ────► │ Device B │
+   └──────────┘                                  └──────────┘
+      │    ▲                                        ▲    │
+      │    └───── discovery via Hyperswarm DHT ─────┘    │
+      │             (hash of join code only)             │
+      │                                                  │
+      │            ┌───────────────────────┐             │
+      └──────────► │ Relay (fallback only) │ ◄───────────┘
+                   │ forwards encrypted    │
+                   │ bytes it can't read   │
+                   └───────────────────────┘
 ```
 
 ### Under the hood
@@ -181,11 +181,11 @@ See [docs/architecture.md](docs/architecture.md) for data flow and inter-process
 
 ### Internationalization
 
-Desktop and mobile share translation catalogs through `@altersend/locales`, currently covering 12 locales. See [docs/i18n.md](docs/i18n.md) for the translation workflow.
+Desktop and mobile share translation catalogs through `@altersend/locales`, currently covering 13 locales. See [docs/i18n.md](docs/i18n.md) for the translation workflow.
 
 ### Tech stack
 
-[Electron](https://electronjs.org) · [React Native](https://reactnative.dev) · [Expo](https://expo.dev) · [Bare](https://bare.pears.com) · [Hyperswarm](https://github.com/holepunchto/hyperswarm) · [Hyperdrive](https://github.com/holepunchto/hyperdrive) · [React Strict DOM](https://github.com/facebook/react-strict-dom) · [Tailwind](https://tailwindcss.com) · [Zustand](https://github.com/pmndrs/zustand)
+[Electron](https://electronjs.org) · [React Native](https://reactnative.dev) · [Expo](https://expo.dev) · [Bare](https://bare.pears.com) · [Hyperswarm](https://github.com/holepunchto/hyperswarm) · [Protomux](https://github.com/holepunchto/protomux) · [Hyperdrive](https://github.com/holepunchto/hyperdrive) · [React Strict DOM](https://github.com/facebook/react-strict-dom) · [Tailwind](https://tailwindcss.com) · [Zustand](https://github.com/pmndrs/zustand)
 
 ### Crash reporting
 

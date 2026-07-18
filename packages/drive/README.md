@@ -13,8 +13,9 @@ const savedTo = await receiveFile(destPath, channelB)
 await sendFile(srcPath, channelA)
 ```
 
-`Drive(receiveDir)` wraps these when one directory is reused: `drive.receive(name)`
-saves under it, `drive.send(path)` sends any file on disk.
+`Drive(receiveDir)` wraps these when one directory is reused:
+`drive.receive(name, channel)` saves under it, `drive.send(path, channel)` sends
+any file on disk.
 
 `transferId` is optional — the sender generates one, the receiver adopts it. Pass
 one when a channel carries several transfers.
@@ -48,6 +49,6 @@ The engine imports no filesystem or socket:
 | `DriveChannel` | Protomux on UDX | WebSocket                     |
 
 Ships `DiskReader` / `DiskWriter`. They import `#fs` and `#path`, which the
-`imports` map resolves to `bare-fs` / `bare-path` under Bare and the Node
+`imports` map resolves to `bare-fs/promises` / `bare-path` under Bare and the Node
 builtins elsewhere, so the same adapter runs in the worklet and in tests. The
 root export resolves to an fs-free build under a browser condition.
