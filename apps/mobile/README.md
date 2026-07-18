@@ -27,7 +27,6 @@ React Native UI ─── RPC ─── Bare worklet
 
 The shared `packages/domain` layer manages state (Zustand) and business logic identically across desktop and mobile.
 
-
 ### Regenerating native projects
 
 `ios/` and `android/` are not tracked — they are generated from `app.json`. After changing `app.json`, `Info.plist`-relevant plugin config, or upgrading Expo SDK:
