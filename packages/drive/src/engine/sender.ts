@@ -1,11 +1,19 @@
 import type { ChunkReader, DriveChannel, ControlMessage } from './types'
 import { selectChunkSize, chunkCount, chunkRange } from './chunker'
 import { hashChunk, createFileHasher } from './hash'
+import { PEER_SILENCE_TIMEOUT_MS, PROGRESS_STEP_BYTES } from './errors'
+import { Timeout } from './timeout'
+
+interface CancelOptions {
+  notifyPeer?: boolean
+}
 
 export interface SenderOptions {
   transferId: string
   name: string
   highWaterMark?: number
+  ackTimeoutMs?: number
+  progressStepBytes?: number
   onProgress?: (sentBytes: number, totalBytes: number) => void
 }
 
@@ -22,8 +30,10 @@ export class SenderSession {
   private chunkSize = 0
   private totalChunks = 0
   private started = false
+  private announced = false
   private sending = false
   private settled = false
+  private readonly ackTimeout: Timeout
   private settle!: { resolve: (savedTo: string) => void; reject: (err: Error) => void }
 
   constructor(reader: ChunkReader, channel: DriveChannel, opts: SenderOptions) {
@@ -37,6 +47,10 @@ export class SenderSession {
     this.done = new Promise<string>((resolve, reject) => {
       this.settle = { resolve, reject }
     })
+    const ackMs = opts.ackTimeoutMs ?? PEER_SILENCE_TIMEOUT_MS
+    this.ackTimeout = new Timeout(ackMs, () =>
+      this.fail(new Error(`Receiver did not acknowledge within ${ackMs}ms`), { notifyPeer: false })
+    )
     this.done.catch(() => {})
     this.channel.onMessage((message) => this.onMessage(message))
   }
@@ -50,6 +64,8 @@ export class SenderSession {
       this.chunkSize = selectChunkSize(this.size)
       this.totalChunks = chunkCount(this.size, this.chunkSize)
 
+      if (this.settled) return this.done
+
       this.channel.send({
         type: 'start',
         transferId: this.opts.transferId,
@@ -57,6 +73,7 @@ export class SenderSession {
         size: this.size,
         chunkSize: this.chunkSize
       })
+      this.announced = true
     } catch (err) {
       this.fail(err instanceof Error ? err : new Error(String(err)))
     }
@@ -68,20 +85,24 @@ export class SenderSession {
     if (message.transferId !== this.opts.transferId) return
     switch (message.type) {
       case 'need':
-        this.sendChunks(message.indices).catch((err) => this.fail(err))
+        if (!this.announced) break
+        this.sendChunks(message.indices, message.verify === true).catch((err) => this.fail(err))
         break
       case 'ack':
         if (this.settled) break
         this.settled = true
+        this.ackTimeout.stop()
         this.settle.resolve(message.savedTo)
         break
       case 'cancel':
-        this.fail(new Error(message.reason ?? 'Transfer cancelled by receiver'), false)
+        this.fail(new Error(message.reason ?? 'Transfer cancelled by receiver'), {
+          notifyPeer: false
+        })
         break
     }
   }
 
-  private validIndices(indices: number[]): boolean {
+  private hasValidIndices(indices: number[]): boolean {
     const seen = new Set<number>()
     for (const index of indices) {
       if (!Number.isInteger(index) || index < 0 || index >= this.totalChunks) return false
@@ -91,46 +112,56 @@ export class SenderSession {
     return true
   }
 
-  private async sendChunks(indices: number[]): Promise<void> {
+  private async sendChunks(indices: number[], verify: boolean): Promise<void> {
     if (this.sending) return
     this.sending = true
+    try {
+      if (!this.hasValidIndices(indices)) {
+        this.fail(new Error('Rejected invalid chunk request'))
+        return
+      }
 
-    if (!this.validIndices(indices)) {
-      this.fail(new Error('Rejected invalid chunk request'))
-      return
-    }
+      const step = this.opts.progressStepBytes ?? PROGRESS_STEP_BYTES
+      const pendingBytes = indices.reduce(
+        (total, index) => total + chunkRange(index, this.size, this.chunkSize).length,
+        0
+      )
+      let sentBytes = this.size - pendingBytes
+      let reportedBytes = sentBytes
+      for (const index of indices) {
+        if (this.settled) return
+        const { offset, length } = chunkRange(index, this.size, this.chunkSize)
+        const data = await this.reader.read(offset, length)
 
-    const inOrderFull = indices.length === this.totalChunks && indices.every((idx, i) => idx === i)
-    const root = inOrderFull ? createFileHasher() : null
+        await this.drain()
+        if (this.settled) return
+        this.channel.sendChunk({ transferId: this.opts.transferId, index }, data)
 
-    let sentBytes = 0
-    for (const index of indices) {
+        sentBytes += data.length
+        if (sentBytes - reportedBytes >= step || sentBytes === this.size) {
+          reportedBytes = sentBytes
+          this.opts.onProgress?.(sentBytes, this.size)
+        }
+      }
+
       if (this.settled) return
-      const { offset, length } = chunkRange(index, this.size, this.chunkSize)
-      const data = await this.reader.read(offset, length)
-      const hash = hashChunk(data)
-      root?.add(hash)
-
-      await this.drain()
-      this.channel.sendChunk({ transferId: this.opts.transferId, index, hash }, data)
-
-      sentBytes += data.length
-      this.opts.onProgress?.(sentBytes, this.size)
+      const fileHash = verify ? await this.computeFileHash() : null
+      if (this.settled) return
+      this.channel.send({
+        type: 'complete',
+        transferId: this.opts.transferId,
+        fileHash
+      })
+      this.ackTimeout.start()
+    } finally {
+      this.sending = false
     }
-
-    if (this.settled) return
-    const fileHash = root ? root.digest() : await this.fileRoot()
-    if (this.settled) return
-    this.channel.send({
-      type: 'complete',
-      transferId: this.opts.transferId,
-      fileHash
-    })
   }
 
-  private async fileRoot(): Promise<string> {
+  private async computeFileHash(): Promise<string> {
     const root = createFileHasher()
     for (let i = 0; i < this.totalChunks; i++) {
+      if (this.settled) throw new Error('Transfer cancelled')
       const { offset, length } = chunkRange(i, this.size, this.chunkSize)
       root.add(hashChunk(await this.reader.read(offset, length)))
     }
@@ -143,13 +174,14 @@ export class SenderSession {
     }
   }
 
-  cancel(reason = 'Transfer cancelled'): void {
-    this.fail(new Error(reason))
+  cancel(reason = 'Transfer cancelled', options: CancelOptions = {}): void {
+    this.fail(new Error(reason), options)
   }
 
-  private fail(err: Error, notifyPeer = true): void {
+  private fail(err: Error, { notifyPeer = true }: CancelOptions = {}): void {
     if (this.settled) return
     this.settled = true
+    this.ackTimeout.stop()
     if (notifyPeer) {
       try {
         this.channel.send({ type: 'cancel', transferId: this.opts.transferId })

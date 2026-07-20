@@ -2,12 +2,20 @@ import type { ChunkWriter, DriveChannel, ChunkHeader, ControlMessage } from './t
 import { selectChunkSize, chunkCount, chunkRange } from './chunker'
 import { hashChunk, createFileHasher } from './hash'
 import { Bitmap } from './bitmap'
+import { IntegrityError, PEER_SILENCE_TIMEOUT_MS, PROGRESS_STEP_BYTES } from './errors'
+import { Timeout } from './timeout'
+
+interface CancelOptions {
+  notifyPeer?: boolean
+}
 
 export interface ReceiverOptions {
   transferId?: string
   expectedSize?: number
   resumeBits?: Uint8Array
   verifyFullFile?: boolean
+  stallTimeoutMs?: number
+  progressStepBytes?: number
   onProgress?: (receivedBytes: number, totalBytes: number) => void
   onChunkWritten?: (bitmap: Bitmap) => void
 }
@@ -21,24 +29,43 @@ export class ReceiverSession {
   private chunkSize = 0
   private bitmap: Bitmap | null = null
   private receivedBytes = 0
+  private reportedBytes = 0
   private resumed = false
   private transferId: string | null
   private settled = false
+  private cancelling = false
   private settle!: { resolve: (savedTo: string) => void; reject: (err: Error) => void }
   private readonly done: Promise<string>
   private tail: Promise<void> = Promise.resolve()
+  private readonly silence: Timeout
 
   constructor(writer: ChunkWriter, channel: DriveChannel, opts: ReceiverOptions) {
     this.writer = writer
     this.channel = channel
     this.opts = opts
     this.transferId = opts.transferId ?? null
+    const silenceMs = opts.stallTimeoutMs ?? PEER_SILENCE_TIMEOUT_MS
+    this.silence = new Timeout(silenceMs, () =>
+      this.enqueue(() => this.fail(new Error(`No data from sender for ${silenceMs}ms`)))
+    )
     this.done = new Promise<string>((resolve, reject) => {
       this.settle = { resolve, reject }
     })
     this.done.catch(() => {})
-    this.channel.onMessage((message) => this.onMessage(message))
-    this.channel.onChunk((header, data) => this.enqueue(() => this.onChunk(header, data)))
+    this.channel.onMessage((message) => {
+      this.restartSilenceTimer()
+      this.onMessage(message)
+    })
+    this.channel.onChunk((header, data) => {
+      this.restartSilenceTimer()
+      this.enqueue(() => this.onChunk(header, data))
+    })
+    this.restartSilenceTimer()
+  }
+
+  private restartSilenceTimer(): void {
+    if (this.settled) return
+    this.silence.restart()
   }
 
   private enqueue(task: () => Promise<void>): void {
@@ -67,31 +94,52 @@ export class ReceiverSession {
         break
       case 'cancel':
         this.enqueue(() =>
-          this.fail(new Error(message.reason ?? 'Transfer cancelled by sender'), false)
+          this.fail(new Error(message.reason ?? 'Transfer cancelled by sender'), {
+            notifyPeer: false
+          })
         )
         break
     }
   }
 
-  private validGeometry(size: number, chunkSize: number): boolean {
+  private isValidGeometry(size: number, chunkSize: number): boolean {
     return Number.isSafeInteger(size) && size >= 0 && chunkSize === selectChunkSize(size)
   }
 
   private async onStart(size: number, chunkSize: number): Promise<void> {
-    if (this.settled) return
-    if (!this.validGeometry(size, chunkSize)) {
-      throw new Error(`Rejected transfer geometry: size=${size} chunkSize=${chunkSize}`)
+    if (this.settled || this.cancelling) return
+    if (!this.isValidGeometry(size, chunkSize)) {
+      throw new IntegrityError(`Rejected transfer geometry: size=${size} chunkSize=${chunkSize}`)
     }
     const expected = this.opts.expectedSize
     if (expected !== undefined && size !== expected) {
-      throw new Error(`Sender announced ${size} bytes, expected ${expected}`)
+      throw new IntegrityError(`Sender announced ${size} bytes, expected ${expected}`)
     }
+    if (this.bitmap) {
+      if (size !== this.size || chunkSize !== this.chunkSize) {
+        throw new IntegrityError(`Sender re-announced ${size}/${chunkSize} mid-transfer`)
+      }
+      this.channel.send({
+        type: 'need',
+        transferId: this.transferId!,
+        indices: this.bitmap.missing(),
+        verify: this.needsVerification()
+      })
+      return
+    }
+
     this.size = size
     this.chunkSize = chunkSize
     const total = chunkCount(size, chunkSize)
-    this.bitmap = this.opts.resumeBits
-      ? Bitmap.deserialize(total, this.opts.resumeBits)
-      : new Bitmap(total)
+    try {
+      this.bitmap = this.opts.resumeBits
+        ? Bitmap.deserialize(total, this.opts.resumeBits)
+        : new Bitmap(total)
+    } catch (err) {
+      throw new IntegrityError(
+        `Resume state does not match this file: ${err instanceof Error ? err.message : String(err)}`
+      )
+    }
     this.resumed = this.bitmap.count() > 0
 
     for (let i = 0; i < total; i++) {
@@ -102,50 +150,62 @@ export class ReceiverSession {
     this.channel.send({
       type: 'need',
       transferId: this.transferId!,
-      indices: this.bitmap.missing()
+      indices: this.bitmap.missing(),
+      verify: this.needsVerification()
     })
   }
 
+  private needsVerification(): boolean {
+    return this.opts.verifyFullFile === true || this.resumed
+  }
+
   private async onChunk(header: ChunkHeader, data: Uint8Array): Promise<void> {
-    if (this.settled) return
+    if (this.settled || this.cancelling) return
     if (header.transferId !== this.transferId) return
     const bitmap = this.bitmap
-    if (!bitmap) throw new Error('Received chunk before start')
+    if (!bitmap) return
     if (!Number.isInteger(header.index) || header.index < 0 || header.index >= bitmap.size) {
       throw new Error(`Chunk index ${header.index} out of range`)
     }
     if (bitmap.get(header.index)) return
 
     const { offset, length } = chunkRange(header.index, this.size, this.chunkSize)
+
     if (data.length !== length) {
       throw new Error(`Chunk ${header.index} length ${data.length}, expected ${length}`)
-    }
-    if (hashChunk(data) !== header.hash) {
-      throw new Error(`Chunk ${header.index} failed hash verification`)
     }
 
     await this.writer.write(offset, data)
     bitmap.set(header.index)
     this.receivedBytes += length
     this.opts.onChunkWritten?.(bitmap)
+    this.reportProgress(bitmap.allSet())
+  }
+
+  private reportProgress(force: boolean): void {
+    const step = this.opts.progressStepBytes ?? PROGRESS_STEP_BYTES
+    if (!force && this.receivedBytes - this.reportedBytes < step) return
+    this.reportedBytes = this.receivedBytes
     this.opts.onProgress?.(this.receivedBytes, this.size)
   }
 
   private async onComplete(fileHash: string | null): Promise<void> {
-    if (this.settled) return
+    if (this.settled || this.cancelling) return
+    this.silence.stop()
     const bitmap = this.bitmap
     if (!bitmap) throw new Error('Received complete before start')
     if (!bitmap.allSet()) {
       throw new Error(`Transfer incomplete: ${bitmap.count()}/${bitmap.size} chunks`)
     }
 
-    if (this.opts.verifyFullFile || this.resumed) {
-      if (!fileHash) throw new Error('Missing file hash: cannot verify the assembled file')
+    if (this.needsVerification()) {
+      if (!fileHash) throw new IntegrityError('Missing file hash: cannot verify the assembled file')
       await this.verifyFullFile(fileHash)
     }
 
     const savedTo = await this.writer.finalize()
     this.settled = true
+    this.silence.stop()
     try {
       this.channel.send({ type: 'ack', transferId: this.transferId!, savedTo })
     } catch {}
@@ -158,22 +218,26 @@ export class ReceiverSession {
     for (let i = 0; i < total; i++) {
       const { offset, length } = chunkRange(i, this.size, this.chunkSize)
       const bytes = await this.writer.readBack(offset, length)
-      if (!bytes) throw new Error('Full-file verification could not read back file')
+      if (!bytes) throw new IntegrityError('Full-file verification could not read back file')
       root.add(hashChunk(bytes))
     }
-    if (root.digest() !== expected) throw new Error('Full-file hash mismatch')
+    if (root.digest() !== expected) throw new IntegrityError('Full-file hash mismatch')
   }
 
   cancel(reason = 'Transfer cancelled'): void {
+    if (this.settled || this.cancelling) return
+    this.cancelling = true
+    this.silence.stop()
     this.enqueue(() => this.fail(new Error(reason)))
   }
 
-  private async fail(err: Error, notifyPeer = true): Promise<void> {
+  private async fail(err: Error, { notifyPeer = true }: CancelOptions = {}): Promise<void> {
     if (this.settled) return
     this.settled = true
+    this.silence.stop()
     if (notifyPeer && this.transferId !== null) {
       try {
-        this.channel.send({ type: 'cancel', transferId: this.transferId })
+        this.channel.send({ type: 'cancel', transferId: this.transferId, reason: err.message })
       } catch {}
     }
     try {
