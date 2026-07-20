@@ -158,6 +158,49 @@ export const forgetPeer = async (pubkey: string): Promise<boolean> => {
   }
 }
 
+const findPeerDisplayName = (pubkey: string): string | undefined => {
+  const key = pubkey.toLowerCase()
+  const { peers, remember } = transferStore.getState()
+  const match = peers.find((peer) => peer.remoteDevicePubkey.toLowerCase() === key)
+  if (match) return match.displayName
+
+  const cached = Object.entries(remember.peerDisplayNames).find(
+    ([cachedKey]) => cachedKey.toLowerCase() === key
+  )
+  return cached?.[1]
+}
+
+const undoRename = async (pubkey: string, previousName: string | undefined): Promise<void> => {
+  if (previousName !== undefined) {
+    dispatchToTransferStore({ type: 'rename_peer', peerKey: pubkey, displayName: previousName })
+  }
+  await loadPeers()
+}
+
+export const renamePeer = async (pubkey: string, displayName: string): Promise<boolean> => {
+  const trimmed = displayName.trim()
+  if (trimmed.length === 0) return false
+
+  const previousName = findPeerDisplayName(pubkey)
+  dispatchToTransferStore({ type: 'rename_peer', peerKey: pubkey, displayName: trimmed })
+
+  try {
+    const updated = await getTransferApi().worker.renamePeer({
+      remoteDevicePubkey: pubkey,
+      displayName: trimmed
+    })
+    if (updated) {
+      await loadPeers()
+      return true
+    }
+  } catch (error) {
+    reportError('renamePeer', error)
+  }
+
+  await undoRename(pubkey, previousName)
+  return false
+}
+
 export const requestPair = (transferId: string, peerKey: string): void => {
   dispatchToTransferStore({ type: 'request_pair_peer', peerKey })
 
