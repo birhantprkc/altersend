@@ -235,7 +235,7 @@ describe('stall timeout', () => {
       link.channel.sendChunk({ transferId: 't1', index: i }, data)
     }
     await new Promise((r) => setTimeout(r, 10))
-    link.deliver({ type: 'complete', transferId: 't1', fileHash: '' })
+    link.deliver({ type: 'complete', transferId: 't1' })
 
     expect(await settled).toBe('resolved')
   })
@@ -253,7 +253,7 @@ describe('partial preservation', () => {
 
     link.deliver({ type: 'start', transferId: 't1', name: 'f', size: 4096, chunkSize: 65536 })
     await new Promise((r) => setTimeout(r, 0))
-    link.deliver({ type: 'complete', transferId: 't1', fileHash: '' })
+    link.deliver({ type: 'complete', transferId: 't1' })
 
     const err = await settled
     expect(err?.message).toMatch(/incomplete/)
@@ -321,7 +321,7 @@ describe('stale chunks from a superseded send', () => {
       )
     }
     await new Promise((r) => setTimeout(r, 0))
-    link.deliver({ type: 'complete', transferId: 't1', fileHash: '' })
+    link.deliver({ type: 'complete', transferId: 't1' })
 
     expect(await settled).toBe('resolved')
   })

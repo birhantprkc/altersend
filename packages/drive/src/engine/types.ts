@@ -24,6 +24,7 @@ export interface DriveChannel {
   onMessage(handler: (message: ControlMessage) => void): void
   onChunk(handler: (header: ChunkHeader, data: Uint8Array) => void): void
   bufferedAmount(): number
+  whenWritable?(): Promise<void>
   close(): void
 }
 
@@ -51,13 +52,11 @@ export interface NeedMessage {
   type: 'need'
   transferId: string
   indices: number[]
-  verify?: boolean
 }
 
 export interface CompleteMessage {
   type: 'complete'
   transferId: string
-  fileHash: string | null
 }
 
 export interface AckMessage {

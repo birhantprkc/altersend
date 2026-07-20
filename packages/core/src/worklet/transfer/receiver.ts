@@ -164,6 +164,8 @@ export class TransferReceiver {
       }
       this.partials.set(file.fileId, progress)
 
+      if (!partial) await discardPartial(finalPath)
+
       const pending = receiveFile(finalPath, channel, {
         transferId: file.fileId,
         expectedSize: file.size,

@@ -507,3 +507,45 @@ describe('primary button label', () => {
     )
   })
 })
+
+describe('stopping a download that never started', () => {
+  const queued: DownloadItemState = {
+    status: 'downloading',
+    bytesTransferred: 0,
+    totalBytes: 100,
+    queued: true
+  }
+
+  const stop = (state: DownloadItemState, cancelled: boolean) =>
+    applyDownloadMessage({ '/a.bin': state }, '/a.bin', {
+      type: 'status',
+      state: 'download-failed',
+      fileId: '/a.bin',
+      totalBytes: 100,
+      message: 'Cancelled',
+      cancelled,
+      resumable: state.bytesTransferred > 0
+    })
+
+  it('returns to not-started instead of reporting a failure', () => {
+    const next = stop(queued, true)
+
+    expect(next['/a.bin'].status).toBe('idle')
+    expect(next['/a.bin'].message).toBeUndefined()
+    expect(getDownloadRowDisplay(offer('/a.bin'), next['/a.bin']).status.kind).not.toBe('failed')
+  })
+
+  it('still reports a genuine failure as failed', () => {
+    const next = stop(queued, false)
+
+    expect(next['/a.bin'].status).toBe('failed')
+    expect(getDownloadRowDisplay(offer('/a.bin'), next['/a.bin']).status.kind).toBe('failed')
+  })
+
+  it('keeps a part-downloaded stop resumable', () => {
+    const next = stop({ ...queued, bytesTransferred: 40, savedTo: '/out/a.bin' }, true)
+
+    expect(next['/a.bin'].status).toBe('failed')
+    expect(getDownloadRowDisplay(offer('/a.bin'), next['/a.bin']).status.kind).toBe('paused')
+  })
+})

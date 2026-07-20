@@ -56,7 +56,6 @@ export interface ReceiveFileOptions {
   expectedSize?: number
   signal?: AbortLike
   resumeBits?: Uint8Array
-  verifyFullFile?: boolean
   overwrite?: boolean
   onProgress?: (receivedBytes: number, totalBytes: number) => void
   onChunkWritten?: (bitmap: Bitmap) => void
@@ -72,7 +71,6 @@ export function receiveFile(
     transferId: opts.transferId,
     expectedSize: opts.expectedSize,
     resumeBits: opts.resumeBits,
-    verifyFullFile: opts.verifyFullFile,
     onProgress: opts.onProgress,
     onChunkWritten: opts.onChunkWritten
   })

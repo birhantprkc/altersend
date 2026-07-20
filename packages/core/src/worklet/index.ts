@@ -9,7 +9,6 @@ import 'bare-zlib'
 import bareProcess from 'bare-process'
 import os from 'bare-os'
 import fs from 'bare-fs'
-import { ready as hashReady } from '@altersend/drive'
 import { TransferOrchestrator } from './transfer/orchestrator'
 import { isDeviceType } from './identity/device-type'
 import { createReadyEvent } from './rpc/events'
@@ -110,12 +109,6 @@ console.error = (...args: unknown[]) => {
 }
 
 sendTransferEvent(createReadyEvent())
-
-hashReady()
-  .then((wasm) => {
-    if (!wasm) console.warn('Core: blake2b wasm unavailable, hashing with the js fallback')
-  })
-  .catch((err: unknown) => console.warn('Core: blake2b wasm probe failed', err))
 
 let shuttingDown = false
 async function gracefulShutdown(_reason: string) {

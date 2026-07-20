@@ -293,6 +293,21 @@ export function applyDownloadMessage(
   }
 
   if (message.state === 'download-failed') {
+    if (message.cancelled === true && previous.bytesTransferred === 0) {
+      return {
+        ...current,
+        [offerKey]: {
+          ...previous,
+          status: 'idle',
+          queued: undefined,
+          starting: undefined,
+          message: undefined,
+          resumable: undefined,
+          savedTo: undefined
+        }
+      }
+    }
+
     return {
       ...current,
       [offerKey]: {

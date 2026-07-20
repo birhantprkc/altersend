@@ -205,3 +205,58 @@ describe('PeerDrive.serve supersession', () => {
     expect(Buffer.from(writer.bytes).equals(Buffer.from(input))).toBe(true)
   })
 })
+
+describe('PeerDrive writable signalling', () => {
+  it('resolves immediately while the socket is drained', async () => {
+    const [socketA, socketB] = socketPair()
+    const senderSide = PeerDrive.create(socketA)!
+    PeerDrive.create(socketB)!
+    await senderSide.supported
+
+    const channel = senderSide.session('f')
+    await expect(channel.whenWritable!()).resolves.toBeUndefined()
+  })
+
+  it('releases a waiting sender when the drive is destroyed', async () => {
+    const [socketA, socketB] = socketPair()
+    const senderSide = PeerDrive.create(socketA)!
+    PeerDrive.create(socketB)!
+    await senderSide.supported
+
+    const channel = senderSide.session('f')
+    senderSide.destroy()
+
+    await expect(channel.whenWritable!()).resolves.toBeUndefined()
+  })
+})
+
+describe('PeerDrive backpressure', () => {
+  it('reports outstanding bytes rather than a saturated flag', async () => {
+    const [socketA, socketB] = socketPair()
+    const senderSide = PeerDrive.create(socketA)!
+    PeerDrive.create(socketB)!
+    await senderSide.supported
+
+    const channel = senderSide.session('f')
+    expect(channel.bufferedAmount()).toBe(0)
+
+    const chunk = new Uint8Array(64 * 1024)
+    channel.sendChunk({ transferId: 'f', index: 0 }, chunk)
+
+    const outstanding = channel.bufferedAmount()
+    expect(Number.isFinite(outstanding)).toBe(true)
+    expect(outstanding).toBeLessThanOrEqual(chunk.length)
+  })
+
+  it('stays below the sender high-water mark for a single chunk', async () => {
+    const [socketA, socketB] = socketPair()
+    const senderSide = PeerDrive.create(socketA)!
+    PeerDrive.create(socketB)!
+    await senderSide.supported
+
+    const channel = senderSide.session('f')
+    channel.sendChunk({ transferId: 'f', index: 0 }, new Uint8Array(1024 * 1024))
+
+    expect(channel.bufferedAmount()).toBeLessThan(8 * 1024 * 1024)
+  })
+})

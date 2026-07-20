@@ -51,13 +51,18 @@ export class PeerDrive {
   private readonly control: ProtomuxMessage<ControlMessage>
   private readonly chunk: ProtomuxMessage<ChunkFrame>
   private readonly sessions = new Map<string, Session>()
+  private readonly socket: PeerSocket
+  private readonly writable: (() => void)[] = []
+  private inFlightBytes = 0
   private readonly sends = new Map<string, { abort: AbortController; done: Promise<void> }>()
   private destroyed = false
 
   readonly supported: Promise<boolean>
 
-  private constructor(channel: ProtomuxChannelLike) {
+  private constructor(channel: ProtomuxChannelLike, socket: PeerSocket) {
     this.channel = channel
+    this.socket = socket
+    socket.on('drain', this.onDrain)
     this.control = channel.addMessage<ControlMessage>({
       encoding: c.json,
       onmessage: (message) => {
@@ -78,7 +83,7 @@ export class PeerDrive {
 
   static create(socket: PeerSocket): PeerDrive | null {
     const channel = Protomux.from(socket).createChannel({ protocol: DRIVE_PROTOCOL })
-    return channel ? new PeerDrive(channel) : null
+    return channel ? new PeerDrive(channel, socket) : null
   }
 
   session(fileId: string): DriveChannel {
@@ -88,7 +93,10 @@ export class PeerDrive {
 
     return {
       send: (message) => this.control.send(message),
-      sendChunk: (header, data) => this.chunk.send({ ...header, data }),
+      sendChunk: (header, data) => {
+        this.inFlightBytes += data.length
+        this.chunk.send({ ...header, data })
+      },
       onMessage: (handler) => {
         session.onMessage = handler
         if (session.pendingCancel) handler(session.pendingCancel)
@@ -96,11 +104,32 @@ export class PeerDrive {
       onChunk: (handler) => {
         session.onChunk = handler
       },
-      bufferedAmount: () => (this.channel.drained ? 0 : Number.POSITIVE_INFINITY),
+      bufferedAmount: () => this.outstandingBytes(),
+      whenWritable: () => this.whenWritable(),
       close: () => {
         this.sessions.delete(fileId)
       }
     }
+  }
+
+  private readonly onDrain = (): void => {
+    this.inFlightBytes = 0
+    this.releaseWaiters()
+  }
+
+  private releaseWaiters(): void {
+    const waiting = this.writable.splice(0)
+    for (const resolve of waiting) resolve()
+  }
+
+  private whenWritable(): Promise<void> {
+    if (this.destroyed || this.channel.drained) return Promise.resolve()
+    return new Promise((resolve) => this.writable.push(resolve))
+  }
+
+  private outstandingBytes(): number {
+    if (this.destroyed || this.channel.drained) this.inFlightBytes = 0
+    return this.inFlightBytes
   }
 
   async serve(fileId: string, name: string, localPath: string | null): Promise<void> {
@@ -150,6 +179,8 @@ export class PeerDrive {
 
   destroy(): void {
     this.destroyed = true
+    this.socket.off('drain', this.onDrain)
+    this.releaseWaiters()
     this.cancel()
     for (const [transferId, session] of this.sessions) {
       const cancel = cancelForDisconnect(transferId)

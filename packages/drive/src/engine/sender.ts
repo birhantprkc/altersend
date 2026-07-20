@@ -1,6 +1,5 @@
 import type { ChunkReader, DriveChannel, ControlMessage } from './types'
 import { selectChunkSize, chunkCount, chunkRange } from './chunker'
-import { hashChunk, createFileHasher } from './hash'
 import { PEER_SILENCE_TIMEOUT_MS, PROGRESS_STEP_BYTES } from './errors'
 import { Timeout } from './timeout'
 
@@ -25,6 +24,7 @@ export class SenderSession {
   private readonly opts: SenderOptions
   private readonly highWater: number
   private readonly done: Promise<string>
+  private readonly settleWaiters: (() => void)[] = []
 
   private size = 0
   private chunkSize = 0
@@ -86,11 +86,12 @@ export class SenderSession {
     switch (message.type) {
       case 'need':
         if (!this.announced) break
-        this.sendChunks(message.indices, message.verify === true).catch((err) => this.fail(err))
+        this.sendChunks(message.indices).catch((err) => this.fail(err))
         break
       case 'ack':
         if (this.settled) break
         this.settled = true
+        this.releaseSettleWaiters()
         this.ackTimeout.stop()
         this.settle.resolve(message.savedTo)
         break
@@ -112,7 +113,7 @@ export class SenderSession {
     return true
   }
 
-  private async sendChunks(indices: number[], verify: boolean): Promise<void> {
+  private async sendChunks(indices: number[]): Promise<void> {
     if (this.sending) return
     this.sending = true
     try {
@@ -145,12 +146,9 @@ export class SenderSession {
       }
 
       if (this.settled) return
-      const fileHash = verify ? await this.computeFileHash() : null
-      if (this.settled) return
       this.channel.send({
         type: 'complete',
-        transferId: this.opts.transferId,
-        fileHash
+        transferId: this.opts.transferId
       })
       this.ackTimeout.start()
     } finally {
@@ -158,20 +156,24 @@ export class SenderSession {
     }
   }
 
-  private async computeFileHash(): Promise<string> {
-    const root = createFileHasher()
-    for (let i = 0; i < this.totalChunks; i++) {
-      if (this.settled) throw new Error('Transfer cancelled')
-      const { offset, length } = chunkRange(i, this.size, this.chunkSize)
-      root.add(hashChunk(await this.reader.read(offset, length)))
-    }
-    return root.digest()
-  }
-
   private async drain(): Promise<void> {
     while (!this.settled && this.channel.bufferedAmount() > this.highWater) {
-      await new Promise((resolve) => setTimeout(resolve, 1))
+      await Promise.race([this.whenWritable(), this.whenSettled()])
     }
+  }
+
+  private whenWritable(): Promise<void> {
+    return this.channel.whenWritable?.() ?? new Promise((resolve) => setTimeout(resolve, 1))
+  }
+
+  private whenSettled(): Promise<void> {
+    if (this.settled) return Promise.resolve()
+    return new Promise((resolve) => this.settleWaiters.push(resolve))
+  }
+
+  private releaseSettleWaiters(): void {
+    const waiting = this.settleWaiters.splice(0)
+    for (const resolve of waiting) resolve()
   }
 
   cancel(reason = 'Transfer cancelled', options: CancelOptions = {}): void {
@@ -181,6 +183,7 @@ export class SenderSession {
   private fail(err: Error, { notifyPeer = true }: CancelOptions = {}): void {
     if (this.settled) return
     this.settled = true
+    this.releaseSettleWaiters()
     this.ackTimeout.stop()
     if (notifyPeer) {
       try {

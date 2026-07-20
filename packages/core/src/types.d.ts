@@ -117,6 +117,8 @@ declare module 'hyperswarm' {
   export interface PeerSocket {
     handshakeHash: Uint8Array | null
     on(event: 'close', cb: () => void): this
+    on(event: 'drain', cb: () => void): this
+    off(event: 'drain', cb: () => void): this
     on(event: 'error', cb: (err: Error) => void): this
     destroy(err?: Error): void
   }
