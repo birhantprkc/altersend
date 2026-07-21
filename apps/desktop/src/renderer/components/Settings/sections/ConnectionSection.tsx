@@ -24,9 +24,7 @@ export function ConnectionSection() {
       <LinkRow
         standalone
         compact
-        subtitleWrap
         label={t('settings:relay.label')}
-        subtitle={t('settings:relay.description')}
         trailing={
           <ToggleSwitch
             checked={relay}

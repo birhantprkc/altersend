@@ -6,7 +6,8 @@ import {
   GithubIcon,
   GlobeIcon,
   HeartIcon,
-  LockIcon
+  LockIcon,
+  XIcon
 } from '@altersend/components/icons'
 import type { IconComponent } from '@altersend/components/icons'
 import { useTranslation } from '@altersend/locales'
@@ -19,6 +20,7 @@ const linkIcons: Record<AboutLinkKey, IconComponent> = {
   website: GlobeIcon,
   github: GithubIcon,
   discord: DiscordIcon,
+  x: XIcon,
   sponsor: HeartIcon,
   privacy: LockIcon,
   terms: FileTextIcon

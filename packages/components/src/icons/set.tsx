@@ -57,7 +57,7 @@ import {
   X
 } from './lucide'
 import { adaptLucide } from './adaptLucide'
-export { GithubIcon, DiscordIcon } from './svgIcons'
+export { GithubIcon, DiscordIcon, XIcon } from './svgIcons'
 
 export const AlertCircleIcon = adaptLucide(AlertCircle)
 export const ArchiveIcon = adaptLucide(Archive)

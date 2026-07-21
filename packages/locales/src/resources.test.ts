@@ -43,7 +43,8 @@ const identicalValueAllowList = new Set([
   'GitHub Issues',
   'QR',
   'OK',
-  'Relay'
+  'Relay',
+  'X'
 ])
 
 const identicalKeyAllowList = new Set([

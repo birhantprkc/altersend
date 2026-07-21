@@ -74,10 +74,8 @@ export function GeneralSection() {
         <div className='overflow-hidden rounded-[10px] border border-border-primary bg-background-subtle'>
           <LinkRow
             compact
-            subtitleWrap
             isLast={askEveryTime}
             label={t('settings:downloads.autoSaveLabel')}
-            subtitle={t('settings:downloads.autoSaveDescription')}
             trailing={
               <ToggleSwitch
                 checked={!askEveryTime}
@@ -108,9 +106,7 @@ export function GeneralSection() {
         <LinkRow
           standalone
           compact
-          subtitleWrap
           label={t('settings:crashReports.label')}
-          subtitle={t('settings:crashReports.description')}
           trailing={
             <ToggleSwitch
               checked={crashReporting}
