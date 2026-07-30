@@ -51,7 +51,8 @@
     "pairedToast": "Emparejado con {{name}}",
     "inviteFailedToast": "No se pudo contactar con {{name}}",
     "inviteFailedHint": "Asegúrate de que esté en línea e inténtalo de nuevo",
-    "deviceConnected": "{{name}} conectado"
+    "deviceConnected": "{{name}} conectado",
+    "peerOutdated": "Este dispositivo necesita actualizar AlterSend para recibir."
   },
   "connection": {
     "placeholder": "Generando clave segura…",
@@ -65,7 +66,11 @@
     "generating": "Generando…",
     "waitingForConnection": "Esperando una conexión…",
     "copyCode": "Copiar código",
-    "qrCode": "Código QR"
+    "qrCode": "Código QR",
+    "copyLink": "Copiar enlace",
+    "shareLink": "Compartir enlace",
+    "shareMessage": "{{items}} compartidos contigo con AlterSend: ábrelo para descargar:\n\n{{link}}",
+    "linkHint": "Hasta {{limit}} por transferencia"
   },
   "errors": {
     "folderUnsupported": "Las carpetas aún no son compatibles. Seleccione solo archivos.",
