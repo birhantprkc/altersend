@@ -59,7 +59,7 @@ export default defineConfig(async ({ mode }) => {
     root: join(__dirname, 'src'),
     publicDir: join(__dirname, 'public'),
     envDir: __dirname,
-    base: './',
+    base: '/',
     build: {
       outDir: join(__dirname, 'dist'),
       emptyOutDir: true
