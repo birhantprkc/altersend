@@ -111,6 +111,7 @@
   "files": {
     "addedFiles": "追加したファイル",
     "removeLabel": "{{name}} を削除",
-    "addedText": "追加したテキスト"
+    "addedText": "追加したテキスト",
+    "tooMany": "送信するファイルが多すぎます。まずアーカイブに圧縮してください。"
   }
 }

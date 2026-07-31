@@ -20,6 +20,7 @@ export type TransferStatus =
   | 'connection-type'
   | 'peer-client'
   | 'peer-unauthenticated'
+  | 'peer-authenticated'
 
 export type TransferRole = 'sender' | 'receiver'
 

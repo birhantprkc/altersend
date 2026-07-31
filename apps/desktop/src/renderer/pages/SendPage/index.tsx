@@ -5,6 +5,7 @@ import { useTranslation } from '@altersend/locales'
 import {
   clearSenderFlow,
   continueShare,
+  exceedsFileCountLimit,
   formatFileSize,
   formatItemsCount,
   getSendPageCopy,
@@ -61,20 +62,25 @@ export default function SendPage() {
     const textItems = selectedFiles.filter((file) => file.kind === 'text')
     const totalSize = fileItems.reduce((sum, file) => sum + (file.size ?? 0), 0)
     const countLabel = formatItemsCount(fileItems.length, textItems.length, t)
+    const tooManyFiles = exceedsFileCountLimit(fileItems.length)
 
     return (
       <div className='flex items-center justify-between gap-4'>
         <div className='flex items-baseline gap-2'>
           <span className='text-[14.5px] font-semibold text-text-primary'>{countLabel}</span>
-          {totalSize > 0 ? (
+          {tooManyFiles && (
+            <span className='text-[13px] text-danger'>{t('send:files.tooMany')}</span>
+          )}
+          {!tooManyFiles && totalSize > 0 && (
             <span className='text-[13px] text-text-faint'>{formatFileSize(totalSize)}</span>
-          ) : null}
+          )}
         </div>
         <TransferActionGroup>
           <Button onClick={clearSenderFlow} size='sm' variant='ghost'>
             {t('common:actions.clear')}
           </Button>
           <Button
+            disabled={tooManyFiles}
             onClick={() => void continueShare(selectedFiles)}
             size='sm'
             variant='primary'

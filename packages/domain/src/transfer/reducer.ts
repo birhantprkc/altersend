@@ -78,6 +78,19 @@ function flagPeer(
   return { ...state, [field]: { ...state[field], [peer]: true } }
 }
 
+function unflagPeer(
+  state: TransferSessionState,
+  field: 'webPeers' | 'outdatedPeers',
+  peer: string
+): TransferSessionState {
+  if (!state[field][peer]) return state
+
+  const next = { ...state[field] }
+  delete next[peer]
+
+  return { ...state, [field]: next }
+}
+
 function mergeIncomingFileOffers(
   current: TransferSessionState['incomingFileOffers'],
   nextFiles: TransferSessionState['incomingFileOffers']
@@ -178,6 +191,8 @@ export function transferSessionReducer(
       return flagPeer(state, 'webPeers', action.peer)
     case 'peer_outdated':
       return flagPeer(state, 'outdatedPeers', action.peer)
+    case 'peer_authenticated':
+      return unflagPeer(state, 'outdatedPeers', action.peer)
     case 'reconnecting':
       return { ...state, isReconnecting: true }
     case 'clear_session':

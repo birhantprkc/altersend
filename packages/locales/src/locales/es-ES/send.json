@@ -111,6 +111,7 @@
   "files": {
     "addedFiles": "Archivos añadidos",
     "removeLabel": "Eliminar {{name}}",
-    "addedText": "Texto añadido"
+    "addedText": "Texto añadido",
+    "tooMany": "Demasiados archivos para enviar. Comprímelos en un archivo primero."
   }
 }

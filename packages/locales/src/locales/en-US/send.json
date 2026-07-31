@@ -111,6 +111,7 @@
   "files": {
     "addedFiles": "Added files",
     "removeLabel": "Remove {{name}}",
-    "addedText": "Added text"
+    "addedText": "Added text",
+    "tooMany": "Too many files to send. Zip them into an archive first."
   }
 }

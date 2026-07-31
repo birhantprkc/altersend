@@ -194,6 +194,9 @@ function dispatchStatusEvent(event: StatusEvent): void {
     case 'peer-unauthenticated':
       if (event.peer) dispatchToTransferStore({ type: 'peer_outdated', peer: event.peer })
       return
+    case 'peer-authenticated':
+      if (event.peer) dispatchToTransferStore({ type: 'peer_authenticated', peer: event.peer })
+      return
     case 'joining':
     case 'joined':
     case 'disconnected':

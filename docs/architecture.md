@@ -84,19 +84,21 @@ Locale metadata, preference resolution, i18next setup, and bundled catalogs for 
 1. **Sender** opens the share screen → the worklet generates a single-use topic: a random 32-byte key, hex-encoded to a 64-char join code, displayed as QR / `com.altersend.mobile://join/<topic>`.
 2. **Receiver** scans or types the code → domain validates and extracts the topic, passes it to core.
 3. Both sides join the Hyperswarm topic; on connection the shared Corestore replicates over the noise-encrypted socket.
-4. **Topic authentication** — the sender challenges the receiver to prove it holds the join code before releasing any offers; a peer that fails or times out (8 s) is dropped. See [Topic authentication](#topic-authentication).
+4. **Topic authentication** — the sender challenges the receiver to prove it holds the join code before releasing any offers; a wrong proof is rejected, while a peer that never proves it is flagged (not dropped). See [Topic authentication](#topic-authentication).
 5. Sender broadcasts a `transfer-ready` message with file offers (each carrying the drive key).
 6. Receiver requests each file over a `@altersend/drive` chunk channel, streaming chunks straight to disk (falling back to the replicated Hyperdrive for older peers). Progress flows back over the control channel → RPC → domain → UI.
 
 Step 6 is mid-migration: `@altersend/drive` is the path when both sides support it, Hyperdrive is only the older-peer fallback. New transfer work belongs in `packages/drive`.
 
+A transfer is capped at **10,000 files** (`MAX_FILES_PER_TRANSFER`, validated in `control-validation.ts`); the send UI blocks earlier with a "zip them" hint. The whole offer list goes in one message on the single worklet thread, so huge counts would choke it.
+
 ## Topic authentication
 
 The DHT **discovery topic** is only a hash — observable on the network, and (for the browser receiver) also routed through the public [hyperswarm-dht-relay](https://github.com/holepunchto/hyperswarm-dht-relay). Knowing it must not be enough to receive files; a peer has to prove it holds the actual **join code**.
 
-The sender sends a fresh 32-byte `challenge` nonce; the receiver replies with `auth: topicProof(joinCode, nonce)` — a BLAKE2b hash of the join code and nonce (`worklet/transfer/topic-auth.ts`). On a match the sender releases offers; otherwise it drops the connection (`peer-unauthenticated`). The join code never crosses the wire and the nonce is single-use.
+The sender sends a random `challenge` nonce; the receiver must reply with `topicProof(joinCode, nonce)` — a BLAKE2b hash of the code + nonce (`worklet/transfer/topic-auth.ts`). The join code never crosses the wire.
 
-**Version compatibility.** The handshake is required on the sender side, so sending to an **older receiver** that lacks it fails after the 8 s timeout — shown as _"This device needs to update AlterSend to receive"_ (`peerOutdated`). Receiving from an older sender is unaffected: a receiver only answers a challenge, never requires one.
+A valid proof releases the offers (even if late); a wrong proof drops the connection. A peer silent past 10 s isn't dropped — it's flagged **"Update to connect"** (`peer-unauthenticated`) and can still auth late (`peer-authenticated` clears it), so a busy sender never aborts a legit receiver. Receiving from an older sender is unaffected — a receiver only answers a challenge, never requires one.
 
 ## Relay fallback
 

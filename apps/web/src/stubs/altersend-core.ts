@@ -12,3 +12,5 @@ export const TRANSFER_ERROR_CODES = {
 } as const
 
 export const MAX_DISPLAY_NAME_LEN = 256
+
+export const MAX_FILES_PER_TRANSFER = 10_000

@@ -111,6 +111,7 @@
   "files": {
     "addedFiles": "已新增的檔案",
     "removeLabel": "删除{{name}}",
-    "addedText": "已新增文字"
+    "addedText": "已新增文字",
+    "tooMany": "檔案太多，無法傳送。請先壓縮成一個壓縮檔。"
   }
 }

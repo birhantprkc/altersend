@@ -96,6 +96,7 @@ export type TransferAction =
   | { type: 'connection_type_changed'; peer: string; connectionType: TransferConnectionType }
   | { type: 'peer_client_changed'; peer: string; client: 'web' }
   | { type: 'peer_outdated'; peer: string }
+  | { type: 'peer_authenticated'; peer: string }
   | { type: 'role_changed'; role: TransferRole | null }
   | { type: 'apply_sharing_progress'; event: SharingStatusEvent }
   | { type: 'init_upload_items'; items: SenderUploadItem[] }

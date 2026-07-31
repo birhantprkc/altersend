@@ -111,6 +111,7 @@
   "files": {
     "addedFiles": "Hinzugefügte Dateien",
     "removeLabel": "Entfernen Sie {{name}}",
-    "addedText": "Hinzugefügter Text"
+    "addedText": "Hinzugefügter Text",
+    "tooMany": "Zu viele Dateien zum Senden. Packe sie zuerst in ein Archiv."
   }
 }

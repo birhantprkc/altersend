@@ -86,7 +86,7 @@ async function tryAsync(label: string, op: () => Promise<unknown>): Promise<void
   }
 }
 
-const AUTH_TIMEOUT_MS = 8000
+const AUTH_TIMEOUT_MS = 10000
 
 export class TransferOrchestrator implements TransferRPC {
   private readonly emitIPC: (message: TransferIPCMessage | PeerControlMessage) => void
@@ -208,7 +208,6 @@ export class TransferOrchestrator implements TransferRPC {
         this.authTimers.delete(session.peerKey)
         if (this.authedPeers.has(session.peerKey)) return
         this.sendStatus('peer-unauthenticated', { peer: session.peerKey })
-        session.socket.destroy()
       }, AUTH_TIMEOUT_MS)
     )
   }
@@ -550,8 +549,11 @@ export class TransferOrchestrator implements TransferRPC {
       session.socket.destroy()
       return
     }
+
     this.pendingNonce.delete(session.peerKey)
     this.clearAuthTimer(session.peerKey)
+
+    this.sendStatus('peer-authenticated', { peer: session.peerKey })
     this.releaseOffers(session)
   }
 
