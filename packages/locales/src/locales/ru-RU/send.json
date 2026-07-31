@@ -52,7 +52,8 @@
     "inviteFailedToast": "Не удалось связаться с {{name}}",
     "inviteFailedHint": "Убедитесь, что устройство в сети, и попробуйте снова",
     "deviceConnected": "{{name}} подключён",
-    "peerOutdated": "Этому устройству нужно обновить AlterSend, чтобы получать файлы."
+    "peerOutdated": "Не удаётся подключиться — на этом устройстве нужна более новая версия AlterSend.",
+    "updateRequired": "Обновите для подключения"
   },
   "connection": {
     "placeholder": "Генерация защищённого ключа…",
@@ -70,7 +71,8 @@
     "copyLink": "Скопировать ссылку",
     "shareLink": "Поделиться ссылкой",
     "shareMessage": "Для вас — {{items}} через AlterSend. Откройте ссылку, чтобы скачать.\n\n{{link}}",
-    "linkHint": "До {{limit}} за передачу"
+    "linkHint": "До {{limit}} за передачу",
+    "connectedViaBrowser": "Подключено через браузер"
   },
   "errors": {
     "folderUnsupported": "Папки пока не поддерживаются. Пожалуйста, выбирайте только файлы.",

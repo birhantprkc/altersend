@@ -118,8 +118,12 @@ function detailLabel(detail: PeerListEntryWithPair['detail'], t: Translate): str
 function connectedDeviceSubtitle(
   entry: PeerListEntryWithPair,
   fileCount: number,
-  t: Translate
+  t: Translate,
+  isOutdated: boolean
 ): { subtitle: string; subtitleTone: SubtitleTone } {
+  if (isOutdated) {
+    return { subtitle: t('send:status.updateRequired'), subtitleTone: 'danger' }
+  }
   if (entry.status === 'downloaded') {
     return {
       subtitle: `${t('common:files.count', { count: fileCount })} downloaded`,
@@ -149,9 +153,10 @@ function toPairAction(pairState: PairState | undefined): ConnectedDeviceRow['act
 
 function connectedAction(
   entry: PeerListEntryWithPair,
-  isWeb: boolean
+  isWeb: boolean,
+  isOutdated: boolean
 ): ConnectedDeviceRow['action'] {
-  if (isWeb) return 'none'
+  if (isOutdated || isWeb) return 'none'
   if (!entry.isConnected) return 'pair-done'
   return toPairAction(entry.pairState)
 }
@@ -245,7 +250,14 @@ export function useShareViewModel(
   )
 
   const connectedRows: ConnectedDeviceRow[] = peerEntriesWithPair.map((entry) => {
-    const { subtitle, subtitleTone } = connectedDeviceSubtitle(entry, fileOffers.length, t)
+    const isOutdated = Boolean(outdatedPeers[entry.peerKey])
+    const isWeb = Boolean(webPeers[entry.peerKey])
+    const { subtitle, subtitleTone } = connectedDeviceSubtitle(
+      entry,
+      fileOffers.length,
+      t,
+      isOutdated
+    )
     const rememberedForPeer = rememberedPeers.find(
       (r: RememberedPeer) =>
         r.remoteDevicePubkey === entry.peerKey ||
@@ -254,13 +266,15 @@ export function useShareViewModel(
     return {
       kind: 'connected',
       peerKey: entry.peerKey,
-      name: entry.displayName ?? peerDisplayNames[entry.peerKey] ?? entry.shortKey,
+      name: isWeb
+        ? t('send:connection.connectedViaBrowser')
+        : (entry.displayName ?? peerDisplayNames[entry.peerKey] ?? entry.shortKey),
       isKnown: Boolean(entry.displayName ?? peerDisplayNames[entry.peerKey]),
-      deviceType: rememberedForPeer?.deviceType ?? null,
+      deviceType: isWeb ? 'browser' : (rememberedForPeer?.deviceType ?? null),
       subtitle,
       subtitleTone,
       progressPercent: entry.status === 'downloading' ? entry.progressPercent : undefined,
-      action: connectedAction(entry, Boolean(webPeers[entry.peerKey]))
+      action: connectedAction(entry, isWeb, isOutdated)
     }
   })
 

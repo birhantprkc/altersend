@@ -52,7 +52,8 @@
     "inviteFailedToast": "Impossibile raggiungere {{name}}",
     "inviteFailedHint": "Assicurati che sia online e riprova",
     "deviceConnected": "{{name}} connesso",
-    "peerOutdated": "Questo dispositivo deve aggiornare AlterSend per ricevere."
+    "peerOutdated": "Impossibile connettersi: questo dispositivo richiede una versione più recente di AlterSend.",
+    "updateRequired": "Aggiorna per connetterti"
   },
   "connection": {
     "placeholder": "Generazione della chiave sicura…",
@@ -70,7 +71,8 @@
     "copyLink": "Copia link",
     "shareLink": "Condividi link",
     "shareMessage": "{{items}} condivisi con te tramite AlterSend: apri per scaricare:\n\n{{link}}",
-    "linkHint": "Fino a {{limit}} per trasferimento"
+    "linkHint": "Fino a {{limit}} per trasferimento",
+    "connectedViaBrowser": "Connesso tramite browser"
   },
   "errors": {
     "folderUnsupported": "Le cartelle non sono ancora supportate. Seleziona solo i file.",

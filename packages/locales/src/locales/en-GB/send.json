@@ -52,7 +52,8 @@
     "inviteFailedToast": "Couldn't reach {{name}}",
     "inviteFailedHint": "Make sure it's online and try again",
     "deviceConnected": "{{name}} connected",
-    "peerOutdated": "This device needs to update AlterSend to receive."
+    "peerOutdated": "Can't connect — this device needs a newer version of AlterSend.",
+    "updateRequired": "Update to connect"
   },
   "connection": {
     "placeholder": "Generating secure key…",
@@ -70,7 +71,8 @@
     "copyLink": "Copy link",
     "shareLink": "Share link",
     "shareMessage": "{{items}} shared with you via AlterSend — open to download:\n\n{{link}}",
-    "linkHint": "Up to {{limit}} per transfer"
+    "linkHint": "Up to {{limit}} per transfer",
+    "connectedViaBrowser": "Connected via browser"
   },
   "errors": {
     "folderUnsupported": "Folders aren't supported yet. Please select files only.",
