@@ -23,6 +23,12 @@ export function startRelayConf(pubkeyHex: string | undefined): void {
 interface RelayRecordEntry {
   key: string
   host: string
+  utc?: number
+}
+
+function recordUtcOffset(entry: RelayRecordEntry): number | undefined {
+  if (typeof entry.utc === 'number' && Number.isFinite(entry.utc)) return entry.utc
+  return undefined
 }
 
 function isValidEntry(entry: unknown): entry is RelayRecordEntry {
@@ -81,7 +87,9 @@ async function tryFetch(dht: DHT): Promise<boolean> {
       parsed.relays.every(isValidEntry)
     ) {
       const relays = parsed.relays as RelayRecordEntry[]
-      configureRelay({ relays: relays.map((r) => ({ keyHex: r.key, host: r.host })) })
+      configureRelay({
+        relays: relays.map((r) => ({ keyHex: r.key, host: r.host, utcOffset: recordUtcOffset(r) }))
+      })
       return true
     }
   } catch (err) {
