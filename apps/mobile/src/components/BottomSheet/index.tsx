@@ -3,7 +3,7 @@ import {
   Animated,
   Dimensions,
   Easing,
-  KeyboardAvoidingView,
+  Keyboard,
   Modal,
   Platform,
   Pressable,
@@ -49,6 +49,7 @@ export function BottomSheet({
   const [sheetHeight, setSheetHeight] = useState(0)
   const backdropOpacity = useRef(new Animated.Value(0)).current
   const sheetTranslate = useRef(new Animated.Value(OFFSCREEN_FALLBACK)).current
+  const keyboardOffset = useRef(new Animated.Value(0)).current
   const hasOpenedRef = useRef(open)
 
   const onSheetLayout = useCallback((e: LayoutChangeEvent) => {
@@ -96,6 +97,33 @@ export function BottomSheet({
     return () => animation.stop()
   }, [open, sheetHeight, backdropOpacity, sheetTranslate, onDismiss])
 
+  useEffect(() => {
+    if (!keyboardAvoiding) return
+
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow'
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide'
+
+    const showSub = Keyboard.addListener(showEvent, (e) => {
+      Animated.timing(keyboardOffset, {
+        toValue: e.endCoordinates.height,
+        duration: e.duration || 220,
+        useNativeDriver: false
+      }).start()
+    })
+    const hideSub = Keyboard.addListener(hideEvent, (e) => {
+      Animated.timing(keyboardOffset, {
+        toValue: 0,
+        duration: e?.duration || 200,
+        useNativeDriver: false
+      }).start()
+    })
+
+    return () => {
+      showSub.remove()
+      hideSub.remove()
+    }
+  }, [keyboardAvoiding, keyboardOffset])
+
   if (!mounted) return null
 
   const sheet = (
@@ -135,13 +163,12 @@ export function BottomSheet({
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
       </Animated.View>
       {keyboardAvoiding ? (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        <Animated.View
           pointerEvents='box-none'
-          style={styles.keyboardAvoider}
+          style={[styles.keyboardAvoider, { paddingBottom: keyboardOffset }]}
         >
           {sheet}
-        </KeyboardAvoidingView>
+        </Animated.View>
       ) : (
         sheet
       )}
