@@ -27,7 +27,10 @@ export function joinFilePath(dirPath: string, fileName: string) {
 }
 
 export function toSafeFileName(name: string, fallback: string): string {
-  const sanitized = name.replace(/[\\/\0]/g, '_').trim().slice(0, 255)
+  const sanitized = name
+    .replace(/[\\/\0]/g, '_')
+    .trim()
+    .slice(0, 255)
   return sanitized.length > 0 && sanitized !== '.' && sanitized !== '..' ? sanitized : fallback
 }
 

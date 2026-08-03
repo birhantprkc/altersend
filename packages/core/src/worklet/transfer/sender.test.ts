@@ -64,7 +64,9 @@ describe('TransferSender.buildOffers', () => {
     const sender = new TransferSender(untouchableDrive())
 
     const [offer] = sender.buildOffers(
-      [{ ...scanned('a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c.flac', 10), displayName: 'My Song.flac' }],
+      [
+        { ...scanned('a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c.flac', 10), displayName: 'My Song.flac' }
+      ],
       't1'
     )
 
