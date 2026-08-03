@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, screen, shell } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { isLinux } from 'which-runtime'
@@ -16,11 +16,16 @@ export function sendToAllWindows(name: string, data: unknown) {
 
 export async function createMainWindow(pear: PearRuntimeInstance) {
   const shouldOpenDevTools = false
+  const minWidth = 720
+  const minHeight = 480
+  const { width: workAreaWidth, height: workAreaHeight } = screen.getPrimaryDisplay().workAreaSize
+  const width = Math.min(980, workAreaWidth)
+  const height = Math.min(792, workAreaHeight)
   const win = new BrowserWindow({
-    width: 980,
-    height: 792,
-    minWidth: 980,
-    minHeight: 792,
+    width,
+    height,
+    minWidth: Math.min(minWidth, width),
+    minHeight: Math.min(minHeight, height),
     show: false,
     backgroundColor: rawTokens.colors.dark.colorBackground,
     titleBarStyle: 'hiddenInset',
