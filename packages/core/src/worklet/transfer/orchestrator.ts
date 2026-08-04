@@ -86,7 +86,21 @@ async function tryAsync(label: string, op: () => Promise<unknown>): Promise<void
   }
 }
 
+function tryAsyncWithin(label: string, ms: number, op: () => Promise<unknown>): Promise<void> {
+  return new Promise<void>((resolve) => {
+    const timer = setTimeout(() => {
+      console.warn(`TransferOrchestrator: ${label} timed out after ${ms}ms`)
+      resolve()
+    }, ms)
+    tryAsync(label, op).then(() => {
+      clearTimeout(timer)
+      resolve()
+    })
+  })
+}
+
 const AUTH_TIMEOUT_MS = 10000
+const LIFECYCLE_TEARDOWN_TIMEOUT_MS = 5000
 
 export class TransferOrchestrator implements TransferRPC {
   private readonly emitIPC: (message: TransferIPCMessage | PeerControlMessage) => void
@@ -103,6 +117,7 @@ export class TransferOrchestrator implements TransferRPC {
   private role: TransferRole | null = null
   private currentTopic: string | null = null
   private suspended: boolean = false
+  private lifecycleQueue: Promise<unknown> = Promise.resolve()
   private readonly inflight = new Set<AbortController>()
   private stagingAbort: AbortController | null = null
 
@@ -451,6 +466,8 @@ export class TransferOrchestrator implements TransferRPC {
       throw new BadRequestError('Cannot join a session while sharing files')
     }
     if (this.currentTopic === topic) {
+      await this.swarm.join(topic)
+      this.sendStatus('joined', { peers: this.swarm.peerCount })
       return { state: 'joined' }
     }
     if (this.currentTopic) {
@@ -678,32 +695,46 @@ export class TransferOrchestrator implements TransferRPC {
     return { enabled, keyCount }
   }
 
-  async suspend(): Promise<void> {
-    if (this.suspended) return
-
-    this.suspended = true
-    this.abortInFlight()
-    this.recognition.reset()
-    this.remember.reset()
-
-    await tryAsync('discovery.stop (suspend)', () => this.discovery.stop())
-    await tryAsync('swarm.endSession (suspend)', () => this.swarm.endSession())
+  private enqueueLifecycle(op: () => Promise<void>): Promise<void> {
+    const next = this.lifecycleQueue.then(op, op)
+    this.lifecycleQueue = next.catch(() => {})
+    return next
   }
 
-  async resume(): Promise<void> {
-    if (!this.suspended) return
+  suspend(): Promise<void> {
+    return this.enqueueLifecycle(async () => {
+      if (this.suspended) return
 
-    this.suspended = false
-    this.discovery.start()
+      this.suspended = true
+      this.abortInFlight()
+      this.recognition.reset()
+      this.remember.reset()
 
-    if (!this.currentTopic) return
+      await tryAsyncWithin('discovery.stop (suspend)', LIFECYCLE_TEARDOWN_TIMEOUT_MS, () =>
+        this.discovery.stop()
+      )
+      await tryAsyncWithin('swarm.endSession (suspend)', LIFECYCLE_TEARDOWN_TIMEOUT_MS, () =>
+        this.swarm.endSession()
+      )
+    })
+  }
 
-    try {
-      await this.swarm.join(this.currentTopic)
-    } catch (err) {
-      console.warn('TransferOrchestrator: swarm.join (resume) failed', err)
-      this.sendError(err instanceof Error ? err.message : String(err))
-    }
+  resume(): Promise<void> {
+    return this.enqueueLifecycle(async () => {
+      if (!this.suspended) return
+
+      this.suspended = false
+      this.discovery.start()
+
+      if (!this.currentTopic) return
+
+      try {
+        await this.swarm.join(this.currentTopic)
+      } catch (err) {
+        console.warn('TransferOrchestrator: swarm.join (resume) failed', err)
+        this.sendError(err instanceof Error ? err.message : String(err))
+      }
+    })
   }
 
   async destroy(): Promise<void> {
