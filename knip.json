@@ -25,7 +25,7 @@
     "packages/components": {
       "entry": ["scripts/*.mjs", ".storybook/{main,preview}.{ts,tsx}", "src/**/*.stories.{ts,tsx}"],
       "project": ["src/**/*.{ts,tsx}", "scripts/**/*.mjs"],
-      "ignoreDependencies": ["lucide-react", "lucide-react-native"],
+      "ignoreDependencies": ["lucide-react", "lucide-react-native", "@expo/ui"],
       "ignoreUnresolved": ["^\\./DragSurface$", "^\\./useIconColor$", "^\\./lucide$"]
     },
     "apps/desktop": {
