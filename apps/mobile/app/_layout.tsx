@@ -89,39 +89,43 @@ function ThemedStack() {
   const flowScreenOptions = getFlowScreenOptions(theme)
   const progress = useSimulatedLoading()
 
-  if (progress < 100) {
-    return <LoadingScreen progress={progress} />
-  }
-
   return (
-    <Stack>
-      <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-      <Stack.Screen name='onboarding' options={{ headerShown: false, gestureEnabled: false }} />
-      <Stack.Screen name='settings' options={flowScreenOptions} />
-      <Stack.Screen name='language' options={flowScreenOptions} />
-      <Stack.Screen name='general' options={flowScreenOptions} />
-      <Stack.Screen name='connection' options={flowScreenOptions} />
-      <Stack.Screen name='devices' options={flowScreenOptions} />
-      <Stack.Screen name='about' options={flowScreenOptions} />
-      <Stack.Screen name='report' options={flowScreenOptions} />
-      <Stack.Screen
-        name='send/preparing'
-        options={{ ...flowScreenOptions, gestureEnabled: false }}
-      />
-      <Stack.Screen name='send/share' options={{ ...flowScreenOptions, gestureEnabled: false }} />
-      <Stack.Screen name='receive/scan' options={flowScreenOptions} />
-      <Stack.Screen
-        name='receive/incoming'
-        options={{ ...flowScreenOptions, gestureEnabled: false }}
-      />
-      <Stack.Screen
-        name='receive/complete'
-        options={{
-          headerShown: false,
-          gestureEnabled: false
-        }}
-      />
-    </Stack>
+    <>
+      <Stack screenOptions={{ contentStyle: { backgroundColor: theme.colors.colorBackground } }}>
+        <Stack.Screen name='index' options={{ headerShown: false }} />
+        <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+        <Stack.Screen name='onboarding' options={{ headerShown: false, gestureEnabled: false }} />
+        <Stack.Screen name='settings' options={flowScreenOptions} />
+        <Stack.Screen name='language' options={flowScreenOptions} />
+        <Stack.Screen name='general' options={flowScreenOptions} />
+        <Stack.Screen name='connection' options={flowScreenOptions} />
+        <Stack.Screen name='devices' options={flowScreenOptions} />
+        <Stack.Screen name='about' options={flowScreenOptions} />
+        <Stack.Screen name='report' options={flowScreenOptions} />
+        <Stack.Screen
+          name='send/preparing'
+          options={{ ...flowScreenOptions, gestureEnabled: false }}
+        />
+        <Stack.Screen name='send/share' options={{ ...flowScreenOptions, gestureEnabled: false }} />
+        <Stack.Screen name='receive/scan' options={flowScreenOptions} />
+        <Stack.Screen
+          name='receive/incoming'
+          options={{ ...flowScreenOptions, gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name='receive/complete'
+          options={{
+            headerShown: false,
+            gestureEnabled: false
+          }}
+        />
+      </Stack>
+      {progress < 100 && (
+        <View style={StyleSheet.absoluteFill}>
+          <LoadingScreen progress={progress} />
+        </View>
+      )}
+    </>
   )
 }
 
