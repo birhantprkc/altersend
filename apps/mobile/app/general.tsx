@@ -47,7 +47,7 @@ export default function GeneralScreen() {
   }
 
   return (
-    <Layout title={t('settings:sections.general')} description='' hasNativeHeader>
+    <Layout hasNativeHeader>
       <View style={styles.container}>
         <View style={[styles.card, cardStyle]}>
           <ToggleSwitch

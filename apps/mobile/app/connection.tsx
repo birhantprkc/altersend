@@ -28,7 +28,7 @@ export default function ConnectionScreen() {
   }
 
   return (
-    <Layout title={t('settings:rows.connection')} description='' hasNativeHeader>
+    <Layout hasNativeHeader>
       <View style={[styles.card, styles.cardPad, cardStyle]}>
         <ToggleSwitch
           checked={relay}

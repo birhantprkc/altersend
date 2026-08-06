@@ -15,11 +15,7 @@ export function DeviceActionsSheet({ open, onClose, onRemove, onRename }: Device
   const { t } = useTranslation(['settings'])
 
   return (
-    <BottomSheet
-      open={open}
-      onClose={onClose}
-      sheetStyle={styles.sheet}
-    >
+    <BottomSheet open={open} onClose={onClose} sheetStyle={styles.sheet}>
       <View style={styles.actionList}>
         <ListItem
           size='large'

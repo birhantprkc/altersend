@@ -48,7 +48,7 @@ export default function SendPreparingScreen() {
   }, [navigation, handleBack, t, theme.colors.colorTextPrimary])
 
   return (
-    <Layout title='' description='' hasNativeHeader>
+    <Layout hasNativeHeader>
       <PreparingView />
     </Layout>
   )

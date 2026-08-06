@@ -26,12 +26,7 @@ export function AddPairDeviceSheet({
   const c = theme.colors
 
   return (
-    <BottomSheet
-      open={open}
-      onClose={onClose}
-      onDismiss={onDismiss}
-      sheetStyle={styles.sheet}
-    >
+    <BottomSheet open={open} onClose={onClose} onDismiss={onDismiss} sheetStyle={styles.sheet}>
       <View style={styles.actionList}>
         <ListItem
           icon={<QrCodeIcon size={15} />}

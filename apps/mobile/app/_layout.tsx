@@ -73,20 +73,32 @@ function MobileCrashScreen({ error, onRestart }: { error: Error; onRestart: () =
   )
 }
 
-function getFlowScreenOptions(theme: Theme) {
+function getHeaderOptions(theme: Theme) {
   return {
     headerShown: true,
     headerStyle: { backgroundColor: theme.colors.colorBackground },
     headerTintColor: theme.colors.colorTextPrimary,
     headerShadowVisible: false,
-    headerTitle: '',
     ...(Platform.OS === 'ios' ? { headerBackButtonDisplayMode: 'minimal' as const } : {})
   } as const
 }
 
+function getFlowScreenOptions(theme: Theme) {
+  return { ...getHeaderOptions(theme), headerTitle: '' } as const
+}
+
+function getTitledScreenOptions(theme: Theme, fontFamilyName?: string) {
+  return {
+    ...getHeaderOptions(theme),
+    ...(fontFamilyName ? { headerTitleStyle: { fontFamily: fontFamilyName } } : {})
+  } as const
+}
+
 function ThemedStack() {
-  const { theme } = useTheme()
+  const { theme, fontFamilyName } = useTheme()
+  const { t } = useTranslation(['settings', 'feedback'])
   const flowScreenOptions = getFlowScreenOptions(theme)
+  const titledScreenOptions = getTitledScreenOptions(theme, fontFamilyName)
   const progress = useSimulatedLoading()
 
   return (
@@ -95,13 +107,34 @@ function ThemedStack() {
         <Stack.Screen name='index' options={{ headerShown: false }} />
         <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
         <Stack.Screen name='onboarding' options={{ headerShown: false, gestureEnabled: false }} />
-        <Stack.Screen name='settings' options={flowScreenOptions} />
-        <Stack.Screen name='language' options={flowScreenOptions} />
-        <Stack.Screen name='general' options={flowScreenOptions} />
-        <Stack.Screen name='connection' options={flowScreenOptions} />
-        <Stack.Screen name='devices' options={flowScreenOptions} />
-        <Stack.Screen name='about' options={flowScreenOptions} />
-        <Stack.Screen name='report' options={flowScreenOptions} />
+        <Stack.Screen
+          name='settings'
+          options={{ ...titledScreenOptions, title: t('settings:title') }}
+        />
+        <Stack.Screen
+          name='language'
+          options={{ ...titledScreenOptions, title: t('settings:languageTitle') }}
+        />
+        <Stack.Screen
+          name='general'
+          options={{ ...titledScreenOptions, title: t('settings:sections.general') }}
+        />
+        <Stack.Screen
+          name='connection'
+          options={{ ...titledScreenOptions, title: t('settings:rows.connection') }}
+        />
+        <Stack.Screen
+          name='devices'
+          options={{ ...titledScreenOptions, title: t('settings:pairing.pairedDevices') }}
+        />
+        <Stack.Screen
+          name='about'
+          options={{ ...titledScreenOptions, title: t('settings:sections.about') }}
+        />
+        <Stack.Screen
+          name='report'
+          options={{ ...titledScreenOptions, title: t('feedback:title') }}
+        />
         <Stack.Screen
           name='send/preparing'
           options={{ ...flowScreenOptions, gestureEnabled: false }}

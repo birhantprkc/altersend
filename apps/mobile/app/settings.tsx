@@ -57,7 +57,7 @@ export default function SettingsScreen() {
     t('common:labels.systemDefault')
 
   return (
-    <Layout title={t('settings:title')} description='' hasNativeHeader>
+    <Layout hasNativeHeader>
       <View style={styles.container}>
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: c.colorTextMuted }]}>

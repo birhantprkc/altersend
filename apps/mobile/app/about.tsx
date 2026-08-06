@@ -41,7 +41,7 @@ export default function AboutScreen() {
   }
 
   return (
-    <Layout title={t('settings:sections.about')} description='' hasNativeHeader>
+    <Layout hasNativeHeader>
       <View style={styles.content}>
         <View style={styles.brand}>
           <Image source={brandLogo} style={styles.brandLogo} resizeMode='contain' />

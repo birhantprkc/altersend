@@ -7,7 +7,7 @@ import { IconButton } from '@/src/components/IconButton'
 import { Text } from '@/src/components/ThemedText'
 
 interface LayoutProps {
-  title: string
+  title?: string
   description?: string
   badge?: React.ReactElement
   footer?: React.ReactElement
@@ -32,7 +32,9 @@ export const Layout = ({
   const { theme } = useTheme()
   const insets = useSafeAreaInsets()
 
-  const paddingTop = hasNativeHeader ? 8 : insets.top + 32
+  const showHeader = Boolean(title || description || badge || onMenuPress)
+  const nativeHeaderPaddingTop = showHeader ? 8 : 24
+  const paddingTop = hasNativeHeader ? nativeHeaderPaddingTop : insets.top + 32
   const paddingBottom = Platform.OS === 'ios' ? insets.bottom + 8 : 28
 
   return (
@@ -46,20 +48,26 @@ export const Layout = ({
         }
       ]}
     >
-      <View style={[styles.header, compactHeader && styles.headerCompact]}>
-        {badge ? <View style={styles.badgeSlot}>{badge}</View> : null}
-        <View style={styles.titleRow}>
-          <Text style={[styles.title, { color: theme.colors.colorTextPrimary }]}>{title}</Text>
-          {onMenuPress ? (
-            <IconButton icon='settings' label={t('common:labels.settings')} onPress={onMenuPress} />
+      {showHeader ? (
+        <View style={[styles.header, compactHeader && styles.headerCompact]}>
+          {badge ? <View style={styles.badgeSlot}>{badge}</View> : null}
+          <View style={styles.titleRow}>
+            <Text style={[styles.title, { color: theme.colors.colorTextPrimary }]}>{title}</Text>
+            {onMenuPress ? (
+              <IconButton
+                icon='settings'
+                label={t('common:labels.settings')}
+                onPress={onMenuPress}
+              />
+            ) : null}
+          </View>
+          {description ? (
+            <Text style={[styles.description, { color: theme.colors.colorTextSecondary }]}>
+              {description}
+            </Text>
           ) : null}
         </View>
-        {description ? (
-          <Text style={[styles.description, { color: theme.colors.colorTextSecondary }]}>
-            {description}
-          </Text>
-        ) : null}
-      </View>
+      ) : null}
 
       {noScroll ? (
         <View style={styles.scrollView}>{children}</View>

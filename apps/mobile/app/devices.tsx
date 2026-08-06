@@ -23,7 +23,6 @@ export default function DevicesScreen() {
 
   return (
     <Layout
-      title={t('settings:pairing.pairedDevices')}
       hasNativeHeader
       footer={
         <Button
