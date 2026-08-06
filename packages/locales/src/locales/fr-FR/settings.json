@@ -51,6 +51,8 @@
     "discard": "Annuler",
     "removeDevice": "Supprimer l’appareil",
     "renameDevice": "Renommer l’appareil",
+    "removeConfirmTitle": "Supprimer {{name}} ?",
+    "removeConfirmMessage": "Vous devrez associer cet appareil à nouveau pour envoyer sans code.",
     "nameLabel": "Nom de l’appareil",
     "namePlaceholder": "Saisissez le nom de l’appareil",
     "pairANewDevice": "Associer un nouvel appareil",

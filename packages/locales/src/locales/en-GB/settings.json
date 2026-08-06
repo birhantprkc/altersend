@@ -51,6 +51,8 @@
     "discard": "Discard",
     "removeDevice": "Remove device",
     "renameDevice": "Rename device",
+    "removeConfirmTitle": "Remove {{name}}?",
+    "removeConfirmMessage": "You’ll need to pair this device again to send without a code.",
     "nameLabel": "Device name",
     "namePlaceholder": "Enter device name",
     "pairANewDevice": "Pair a new device",

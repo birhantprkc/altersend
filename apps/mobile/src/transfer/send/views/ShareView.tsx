@@ -24,8 +24,9 @@ import {
 } from '@altersend/components/icons'
 import { useTranslation } from '@altersend/locales'
 import { useToast } from '@/src/components/Toast'
-import { DeviceActionsSheet, DeviceRenameSheet } from '@/src/components'
+import { ConfirmDialog, DeviceActionsSheet, DeviceRenameSheet } from '@/src/components'
 import { useDeviceRename } from '@/src/pairing/useDeviceRename'
+import { useDeviceRemove } from '@/src/pairing/useDeviceRemove'
 import { QRSection } from './QRSection'
 import { ShareQrSheet } from './ShareQrSheet'
 import { ShareFilesSheet } from './ShareFilesSheet'
@@ -61,6 +62,7 @@ export function ShareView() {
   const [contentWidth, setContentWidth] = useState(0)
   const [actionsTarget, setActionsTarget] = useState<DeviceRenameTarget | null>(null)
   const { openRename, renameSheet } = useDeviceRename(vm.rename)
+  const { confirmRemove, removeDialog } = useDeviceRemove(vm.forget)
 
   const copyTopic = async () => {
     if (!vm.topic) return
@@ -331,14 +333,10 @@ export function ShareView() {
       <DeviceActionsSheet
         open={actionsTarget !== null}
         onClose={() => setActionsTarget(null)}
-        onRemove={async () => {
+        onRemove={() => {
           const target = actionsTarget
           setActionsTarget(null)
-          if (!target) return
-          const removed = await vm.forget(target.peerKey)
-          toast.show({
-            title: t(removed ? 'settings:pairing.deviceRemoved' : 'settings:pairing.removeFailed')
-          })
+          if (target) confirmRemove(target)
         }}
         onRename={() => {
           const target = actionsTarget
@@ -346,6 +344,8 @@ export function ShareView() {
           if (target) openRename(target)
         }}
       />
+
+      <ConfirmDialog {...removeDialog} />
 
       <DeviceRenameSheet {...renameSheet} />
 

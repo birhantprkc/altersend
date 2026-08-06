@@ -51,6 +51,8 @@
     "discard": "Descartar",
     "removeDevice": "Eliminar dispositivo",
     "renameDevice": "Cambiar nombre del dispositivo",
+    "removeConfirmTitle": "¿Eliminar {{name}}?",
+    "removeConfirmMessage": "Tendrás que emparejar este dispositivo otra vez para enviar sin código.",
     "nameLabel": "Nombre del dispositivo",
     "namePlaceholder": "Escribe el nombre del dispositivo",
     "pairANewDevice": "Emparejar un nuevo dispositivo",

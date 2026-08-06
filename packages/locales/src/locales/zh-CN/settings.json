@@ -51,6 +51,8 @@
     "discard": "放弃",
     "removeDevice": "移除设备",
     "renameDevice": "重命名设备",
+    "removeConfirmTitle": "移除 {{name}}？",
+    "removeConfirmMessage": "若要无需代码发送，需要重新配对此设备。",
     "nameLabel": "设备名称",
     "namePlaceholder": "输入设备名称",
     "pairANewDevice": "配对新设备",

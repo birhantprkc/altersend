@@ -4,6 +4,7 @@ import { MoreHorizontalIcon, PlusIcon, deviceIcon } from '@altersend/components/
 import { useTranslation } from '@altersend/locales'
 import {
   AddPairDeviceSheet,
+  ConfirmDialog,
   DeviceActionsSheet,
   DeviceRenameSheet,
   Layout,
@@ -77,6 +78,7 @@ export default function DevicesScreen() {
       )}
 
       <DeviceActionsSheet {...flow.deviceActionsSheet} />
+      <ConfirmDialog {...flow.removeDialog} />
       <DeviceRenameSheet {...flow.renameSheet} />
       <AddPairDeviceSheet {...flow.addSheet} />
       <PairingQrSheet {...flow.qrSheet} />

@@ -67,6 +67,8 @@
     "discard": "Отменить",
     "removeDevice": "Удалить устройство",
     "renameDevice": "Переименовать устройство",
+    "removeConfirmTitle": "Удалить {{name}}?",
+    "removeConfirmMessage": "Чтобы отправлять без кода, устройство придётся сопрячь заново.",
     "nameLabel": "Имя устройства",
     "namePlaceholder": "Введите имя устройства",
     "pairANewDevice": "Сопрячь новое устройство",

@@ -51,6 +51,8 @@
     "discard": "취소",
     "removeDevice": "기기 삭제",
     "renameDevice": "기기 이름 변경",
+    "removeConfirmTitle": "{{name}}을(를) 삭제할까요?",
+    "removeConfirmMessage": "코드 없이 보내려면 이 기기를 다시 페어링해야 합니다.",
     "nameLabel": "기기 이름",
     "namePlaceholder": "기기 이름 입력",
     "pairANewDevice": "새 기기 페어링",

@@ -51,6 +51,8 @@
     "discard": "捨棄",
     "removeDevice": "移除裝置",
     "renameDevice": "重新命名裝置",
+    "removeConfirmTitle": "移除 {{name}}？",
+    "removeConfirmMessage": "若要免代碼傳送，需要重新配對此裝置。",
     "nameLabel": "裝置名稱",
     "namePlaceholder": "輸入裝置名稱",
     "pairANewDevice": "配對新裝置",

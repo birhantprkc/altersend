@@ -51,6 +51,8 @@
     "discard": "Verwerfen",
     "removeDevice": "Gerät entfernen",
     "renameDevice": "Gerät umbenennen",
+    "removeConfirmTitle": "{{name}} entfernen?",
+    "removeConfirmMessage": "Sie müssen dieses Gerät erneut koppeln, um ohne Code zu senden.",
     "nameLabel": "Gerätename",
     "namePlaceholder": "Gerätenamen eingeben",
     "pairANewDevice": "Ein neues Gerät koppeln",
