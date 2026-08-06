@@ -73,21 +73,20 @@ function MobileCrashScreen({ error, onRestart }: { error: Error; onRestart: () =
   )
 }
 
-function getFlowScreenOptions(theme: Theme, backTitle: string) {
+function getFlowScreenOptions(theme: Theme) {
   return {
     headerShown: true,
     headerStyle: { backgroundColor: theme.colors.colorBackground },
     headerTintColor: theme.colors.colorTextPrimary,
     headerShadowVisible: false,
     headerTitle: '',
-    ...(Platform.OS === 'ios' ? { headerBackTitle: backTitle } : {})
+    ...(Platform.OS === 'ios' ? { headerBackButtonDisplayMode: 'minimal' as const } : {})
   } as const
 }
 
 function ThemedStack() {
-  const { t } = useTranslation(['common'])
   const { theme } = useTheme()
-  const flowScreenOptions = getFlowScreenOptions(theme, t('common:actions.back'))
+  const flowScreenOptions = getFlowScreenOptions(theme)
   const progress = useSimulatedLoading()
 
   if (progress < 100) {

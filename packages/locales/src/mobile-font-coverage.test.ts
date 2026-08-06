@@ -107,7 +107,7 @@ describe('mobile font coverage', () => {
     expect(layoutSource).toContain('import { Platform')
     expect(flowOptionsMatch).toBeDefined()
     expect(flowOptionsMatch).toContain("Platform.OS === 'ios'")
-    expect(flowOptionsMatch).toContain('headerBackTitle: backTitle')
+    expect(flowOptionsMatch).not.toContain('headerBackTitle')
   })
 
   it('registers CJK font weights through Expo and the runtime font loader', () => {

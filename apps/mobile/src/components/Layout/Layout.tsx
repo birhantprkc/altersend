@@ -1,10 +1,9 @@
 import { useTheme } from '@altersend/components'
-import { SettingsIcon } from '@altersend/components/icons'
 import { useTranslation } from '@altersend/locales'
-import { BlurView } from 'expo-blur'
 import { PropsWithChildren } from 'react'
-import { View, StyleSheet, ScrollView, Pressable, Platform } from 'react-native'
+import { View, StyleSheet, ScrollView, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { IconButton } from '@/src/components/IconButton'
 import { Text } from '@/src/components/ThemedText'
 
 interface LayoutProps {
@@ -52,26 +51,7 @@ export const Layout = ({
         <View style={styles.titleRow}>
           <Text style={[styles.title, { color: theme.colors.colorTextPrimary }]}>{title}</Text>
           {onMenuPress ? (
-            <Pressable
-              accessibilityRole='button'
-              accessibilityLabel={t('common:labels.settings')}
-              onPress={onMenuPress}
-              hitSlop={12}
-              style={({ pressed }) => [styles.menuButton, { opacity: pressed ? 0.6 : 1 }]}
-            >
-              {Platform.OS === 'ios' ? (
-                <BlurView
-                  pointerEvents='none'
-                  intensity={30}
-                  tint='systemUltraThinMaterialDark'
-                  style={StyleSheet.absoluteFill}
-                />
-              ) : null}
-              <View
-                style={[styles.menuButtonBorder, { borderColor: theme.colors.colorBorderPrimary }]}
-              />
-              <SettingsIcon size={20} color={theme.colors.colorTextPrimary} />
-            </Pressable>
+            <IconButton icon='settings' label={t('common:labels.settings')} onPress={onMenuPress} />
           ) : null}
         </View>
         {description ? (
@@ -120,23 +100,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: -0.5,
     flex: 1
-  },
-  menuButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden'
-  },
-  menuButtonBorder: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: 18,
-    borderWidth: StyleSheet.hairlineWidth
   },
   description: {
     fontSize: 15,
