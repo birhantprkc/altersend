@@ -1,7 +1,6 @@
 {
   "title": "Настройки",
   "languageTitle": "Язык",
-  "languageHint": "Выберите язык, используемый AlterSend.",
   "sections": {
     "general": "Основные",
     "support": "Поддержка",
@@ -47,8 +46,6 @@
     "terms": "Условия использования",
     "termsHint": "Правила использования AlterSend",
     "website": "Веб-сайт",
-    "noDevices": "Пока нет устройств",
-    "pairedCount": "{{count}} в сопряжении",
     "connection": "Ретранслятор"
   },
   "pairing": {

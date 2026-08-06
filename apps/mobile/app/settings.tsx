@@ -3,17 +3,16 @@ import { StyleSheet, View } from 'react-native'
 import { useFocusEffect, useRouter } from 'expo-router'
 import { LOCALE_OPTIONS, useTranslation, type LocalePreference } from '@altersend/locales'
 import { loadPeers, useTransferStore } from '@altersend/domain'
-import { LinkCard, LinkRow, useTheme } from '@altersend/components'
+import { MenuGroup, MenuItem, useTheme } from '@altersend/components'
 import {
-  AlertCircleIcon,
   GlobeIcon,
   InfoIcon,
+  MailIcon,
   SlidersHorizontalIcon,
   SmartphoneIcon,
   WaypointsIcon
 } from '@altersend/components/icons'
 import { Layout } from '@/src/components'
-import { Text } from '@/src/components/ThemedText'
 import {
   getLocalePreferenceSnapshot,
   getSavedLocalePreference,
@@ -59,59 +58,45 @@ export default function SettingsScreen() {
   return (
     <Layout hasNativeHeader>
       <View style={styles.container}>
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: c.colorTextMuted }]}>
-            {t('settings:sections.general')}
-          </Text>
-          <LinkCard>
-            <LinkRow
-              label={t('settings:pairing.pairedDevices')}
-              subtitle={
-                peers.length === 0
-                  ? t('settings:rows.noDevices')
-                  : t('settings:rows.pairedCount', { count: peers.length })
-              }
-              icon={<SmartphoneIcon size={16} color={c.colorTextSecondary} />}
-              onPress={() => router.push('/devices')}
-            />
-            <LinkRow
-              label={t('settings:sections.general')}
-              icon={<SlidersHorizontalIcon size={16} color={c.colorTextSecondary} />}
-              onPress={() => router.push('/general')}
-            />
-            <LinkRow
-              label={t('common:labels.language')}
-              subtitle={languageLabel}
-              icon={<GlobeIcon size={16} color={c.colorTextSecondary} />}
-              onPress={() => router.push('/language')}
-            />
-            <LinkRow
-              isLast
-              label={t('settings:rows.connection')}
-              icon={<WaypointsIcon size={16} color={c.colorTextSecondary} />}
-              onPress={() => router.push('/connection')}
-            />
-          </LinkCard>
-        </View>
+        <MenuGroup title={t('settings:sections.general')}>
+          <MenuItem
+            label={t('settings:pairing.pairedDevices')}
+            value={peers.length === 0 ? undefined : String(peers.length)}
+            icon={<SmartphoneIcon size={19} color={c.colorTextSecondary} />}
+            onPress={() => router.push('/devices')}
+          />
+          <MenuItem
+            label={t('settings:sections.general')}
+            icon={<SlidersHorizontalIcon size={19} color={c.colorTextSecondary} />}
+            onPress={() => router.push('/general')}
+          />
+          <MenuItem
+            label={t('common:labels.language')}
+            value={languageLabel}
+            icon={<GlobeIcon size={19} color={c.colorTextSecondary} />}
+            onPress={() => router.push('/language')}
+          />
+          <MenuItem
+            isLast
+            label={t('settings:rows.connection')}
+            icon={<WaypointsIcon size={19} color={c.colorTextSecondary} />}
+            onPress={() => router.push('/connection')}
+          />
+        </MenuGroup>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: c.colorTextMuted }]}>
-            {t('settings:sections.support')}
-          </Text>
-          <LinkCard>
-            <LinkRow
-              label={t('settings:rows.feedback')}
-              icon={<AlertCircleIcon size={16} color={c.colorTextSecondary} />}
-              onPress={() => router.push('/report')}
-            />
-            <LinkRow
-              isLast
-              label={t('settings:sections.about')}
-              icon={<InfoIcon size={16} color={c.colorTextSecondary} />}
-              onPress={() => router.push('/about')}
-            />
-          </LinkCard>
-        </View>
+        <MenuGroup title={t('settings:sections.support')}>
+          <MenuItem
+            label={t('settings:rows.feedback')}
+            icon={<MailIcon size={19} color={c.colorTextSecondary} />}
+            onPress={() => router.push('/report')}
+          />
+          <MenuItem
+            isLast
+            label={t('settings:sections.about')}
+            icon={<InfoIcon size={19} color={c.colorTextSecondary} />}
+            onPress={() => router.push('/about')}
+          />
+        </MenuGroup>
       </View>
     </Layout>
   )
@@ -120,15 +105,5 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     gap: 22
-  },
-  section: {
-    gap: 8
-  },
-  sectionTitle: {
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    paddingHorizontal: 4
   }
 })

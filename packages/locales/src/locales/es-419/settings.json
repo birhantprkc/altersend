@@ -1,7 +1,6 @@
 {
   "title": "Configuración",
   "languageTitle": "Idioma",
-  "languageHint": "Elige el idioma utilizado por AlterSend.",
   "sections": {
     "general": "General",
     "support": "Soporte",
@@ -31,8 +30,6 @@
     "terms": "Términos de servicio",
     "termsHint": "Reglas para usar AlterSend",
     "website": "Sitio web",
-    "noDevices": "Aún no hay dispositivos",
-    "pairedCount": "{{count}} emparejados",
     "connection": "Relé"
   },
   "pairing": {

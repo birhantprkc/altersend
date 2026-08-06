@@ -1,7 +1,6 @@
 {
   "title": "设置",
   "languageTitle": "语言",
-  "languageHint": "选择 AlterSend 使用的语言。",
   "sections": {
     "general": "通用",
     "support": "支持",
@@ -31,8 +30,6 @@
     "terms": "服务条款",
     "termsHint": "AlterSend 使用规则",
     "website": "网站",
-    "noDevices": "暂无设备",
-    "pairedCount": "已配对 {{count}} 台",
     "connection": "中继"
   },
   "pairing": {

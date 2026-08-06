@@ -1,7 +1,6 @@
 {
   "title": "Einstellungen",
   "languageTitle": "Sprache",
-  "languageHint": "Wählen Sie die von AlterSend verwendete Sprache.",
   "sections": {
     "general": "Allgemein",
     "support": "Unterstützung",
@@ -31,8 +30,6 @@
     "terms": "Nutzungsbedingungen",
     "termsHint": "Regeln für die Verwendung von AlterSend",
     "website": "Webseite",
-    "noDevices": "Noch keine Geräte",
-    "pairedCount": "{{count}} gekoppelt",
     "connection": "Relay"
   },
   "pairing": {

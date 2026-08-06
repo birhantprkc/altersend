@@ -2,11 +2,12 @@ import { useCallback, useEffect } from 'react'
 import { View, StyleSheet, Pressable } from 'react-native'
 import { Paths } from 'expo-file-system'
 import { Button, useTheme } from '@altersend/components'
-import { ArrowLeftIcon, DownloadIcon, InfoIcon, PlayIcon } from '@altersend/components/icons'
+import { DownloadIcon, InfoIcon, PlayIcon } from '@altersend/components/icons'
 import { useTranslation } from '@altersend/locales'
 import { useNavigation, useRouter } from 'expo-router'
 import { uriToPath } from '@/src/api/mobileApi'
 import { Layout, IllustrationLayout } from '@/src/components'
+import { IconButton } from '@/src/components/IconButton'
 import { ReceiveIncomingView, ReceiveReconnectingView } from '@/src/transfer/receive'
 import { useErrorToast } from '@/src/transfer/receive/utils/useErrorToast'
 import { exitToReceiveTab } from '@/src/transfer/receive/utils/exitToReceiveTab'
@@ -66,19 +67,7 @@ export default function ReceiveIncomingScreen() {
     navigation.setOptions({
       headerBackVisible: false,
       headerLeft: () => (
-        <Pressable
-          accessibilityRole='button'
-          accessibilityLabel={t('common:actions.back')}
-          onPress={handleEndSession}
-          hitSlop={12}
-          style={({ pressed }) => ({
-            paddingHorizontal: 8,
-            paddingVertical: 4,
-            opacity: pressed ? 0.6 : 1
-          })}
-        >
-          <ArrowLeftIcon size={22} color={theme.colors.colorTextPrimary} />
-        </Pressable>
+        <IconButton icon='back' label={t('common:actions.back')} onPress={handleEndSession} />
       )
     })
   }, [navigation, handleEndSession, t, theme.colors.colorTextPrimary])

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native'
 import {
   CameraView,
   scanFromURLAsync,
@@ -8,12 +8,13 @@ import {
 } from 'expo-camera'
 import * as ImagePicker from 'expo-image-picker'
 import { Button, useTheme, withAlpha } from '@altersend/components'
-import { ArrowLeftIcon, QrCodeIcon } from '@altersend/components/icons'
+import { QrCodeIcon } from '@altersend/components/icons'
 import { useTranslation } from '@altersend/locales'
 import { useNavigation, useRouter } from 'expo-router'
 import { extractJoinCode, useTransferStore } from '@altersend/domain'
 import { joinSession } from '@altersend/domain'
 import { Layout } from '@/src/components'
+import { IconButton } from '@/src/components/IconButton'
 import { useToast } from '@/src/components/Toast'
 import { Text } from '@/src/components/ThemedText'
 
@@ -46,21 +47,7 @@ export default function ReceiveScanScreen() {
   useEffect(() => {
     navigation.setOptions({
       headerBackVisible: false,
-      headerLeft: () => (
-        <Pressable
-          accessibilityLabel={t('common:actions.back')}
-          accessibilityRole='button'
-          hitSlop={12}
-          onPress={goBack}
-          style={({ pressed }) => ({
-            paddingHorizontal: 8,
-            paddingVertical: 4,
-            opacity: pressed ? 0.6 : 1
-          })}
-        >
-          <ArrowLeftIcon size={22} color={theme.colors.colorTextPrimary} />
-        </Pressable>
-      )
+      headerLeft: () => <IconButton icon='back' label={t('common:actions.back')} onPress={goBack} />
     })
   }, [goBack, navigation, t, theme.colors.colorTextPrimary])
 

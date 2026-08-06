@@ -1,10 +1,10 @@
 import { useCallback, useEffect } from 'react'
-import { Platform, Pressable, View } from 'react-native'
+import { Platform, View } from 'react-native'
 import { Button, useTheme } from '@altersend/components'
-import { ArrowLeftIcon } from '@altersend/components/icons'
 import { clearSenderFlow, getSendPageCopy, getSendStep, useTransferStore } from '@altersend/domain'
 import { useTranslation } from '@altersend/locales'
 import { Layout } from '@/src/components'
+import { IconButton } from '@/src/components/IconButton'
 import { ShareView } from '@/src/transfer/send'
 import { useNavigation } from 'expo-router'
 
@@ -26,19 +26,7 @@ export default function SendShareScreen() {
     navigation.setOptions({
       headerBackVisible: false,
       headerLeft: () => (
-        <Pressable
-          accessibilityRole='button'
-          accessibilityLabel={t('common:actions.back')}
-          onPress={handleBack}
-          hitSlop={12}
-          style={({ pressed }) => ({
-            paddingHorizontal: 8,
-            paddingVertical: 4,
-            opacity: pressed ? 0.6 : 1
-          })}
-        >
-          <ArrowLeftIcon size={22} color={theme.colors.colorTextPrimary} />
-        </Pressable>
+        <IconButton icon='back' label={t('common:actions.back')} onPress={handleBack} />
       )
     })
   }, [navigation, handleBack, t, theme.colors.colorTextPrimary])

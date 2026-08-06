@@ -47,7 +47,7 @@ export default function LanguageScreen() {
   }
 
   return (
-    <Layout description={t('settings:languageHint')} hasNativeHeader>
+    <Layout hasNativeHeader>
       <LinkCard>
         {LOCALE_OPTIONS.map((option, index) => {
           const selected = option.preference === preference

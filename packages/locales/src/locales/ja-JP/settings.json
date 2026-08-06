@@ -1,7 +1,6 @@
 {
   "title": "設定",
   "languageTitle": "言語",
-  "languageHint": "AlterSend で使用する言語を選択します。",
   "sections": {
     "general": "一般",
     "support": "サポート",
@@ -31,8 +30,6 @@
     "terms": "利用規約",
     "termsHint": "AlterSend の利用ルール",
     "website": "Webサイト",
-    "noDevices": "デバイスはまだありません",
-    "pairedCount": "{{count}} 台ペアリング済み",
     "connection": "リレー"
   },
   "pairing": {
