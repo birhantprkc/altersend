@@ -30,7 +30,6 @@ export function DeviceRenameSheet({
       open={open}
       onClose={onClose}
       title={t('settings:pairing.renameDevice')}
-      keyboardAvoiding
       sheetStyle={styles.sheet}
     >
       <View style={styles.form}>

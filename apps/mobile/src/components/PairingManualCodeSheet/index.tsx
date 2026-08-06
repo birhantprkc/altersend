@@ -79,7 +79,6 @@ export function PairingManualCodeSheet({
       onClose={onClose}
       onBack={onBack}
       title={t('settings:pairing.enterCode')}
-      keyboardAvoiding
       sheetStyle={styles.sheet}
     >
       <View style={styles.form}>

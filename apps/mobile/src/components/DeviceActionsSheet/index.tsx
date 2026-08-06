@@ -18,7 +18,6 @@ export function DeviceActionsSheet({ open, onClose, onRemove, onRename }: Device
     <BottomSheet
       open={open}
       onClose={onClose}
-      title={t('settings:pairing.deviceActions')}
       sheetStyle={styles.sheet}
     >
       <View style={styles.actionList}>

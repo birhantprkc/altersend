@@ -30,7 +30,6 @@ export function AddPairDeviceSheet({
       open={open}
       onClose={onClose}
       onDismiss={onDismiss}
-      title={t('settings:pairing.pairNewDevice')}
       sheetStyle={styles.sheet}
     >
       <View style={styles.actionList}>
